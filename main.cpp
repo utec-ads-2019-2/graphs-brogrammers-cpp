@@ -1,5 +1,4 @@
-#include <iostream>
-#include <cstdlib>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -15,37 +14,44 @@ struct listaAdyacencia {
 class Graph {
     private:
         int vertices;
-        listaAdyacencia* nodosGrafo;
+        map <int, listaAdyacencia*> nodosGrafo;
 
     public:
-        Graph(int vertices) {
+        Graph (int vertices) {
             this->vertices = vertices;
-            nodosGrafo = new listaAdyacencia [vertices];
-            for (int i = 0; i < vertices; ++i)
-                nodosGrafo[i].head = NULL;
         }
         
-        nodoListaAdyacencia* newnodoListaAdyacencia(int destino) {
+        nodoListaAdyacencia* crearNodoListaAdyacencia (int destino) {
             nodoListaAdyacencia* nuevoNodo = new nodoListaAdyacencia;
             nuevoNodo->data = destino;
-            nuevoNodo->next = NULL;
+            nuevoNodo->next = nullptr;
             return nuevoNodo;
         }
         
         void addEdge(int origen, int destino) {
-            nodoListaAdyacencia* nuevoNodo = newnodoListaAdyacencia(destino);
-            nuevoNodo->next = nodosGrafo[origen].head;
-            nodosGrafo[origen].head = nuevoNodo;
+            nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(destino);
+            if (!nodosGrafo[origen]) {
+                nodosGrafo[origen] = new listaAdyacencia();
+            }
+            nuevoNodo->next = nodosGrafo[origen]->head;
+            nodosGrafo[origen]->head = nuevoNodo;
             // Esta parte determina si es dirigido o no
-            nuevoNodo = newnodoListaAdyacencia(origen);
-            nuevoNodo->next = nodosGrafo[destino].head;
-            nodosGrafo[destino].head = nuevoNodo;
+            nuevoNodo = crearNodoListaAdyacencia(origen);
+            if (!nodosGrafo[destino]) {
+                nodosGrafo[destino] = new listaAdyacencia();
+            }
+            nuevoNodo->next = nodosGrafo[destino]->head;
+            nodosGrafo[destino]->head = nuevoNodo;
         }
         
         void printGraph() {
-            int v;
-            for (v = 0; v < vertices; ++v) {
-                nodoListaAdyacencia* pCrawl = nodosGrafo[v].head;
+            for (int v = 0; v < vertices; ++v) {
+                nodoListaAdyacencia* pCrawl;
+                if (nodosGrafo[v]) {
+                    pCrawl = nodosGrafo[v]->head;
+                } else {
+                    pCrawl = nullptr;
+                }
                 if (pCrawl) {
                     cout << "\nAdjacency list of vertex " << v << "\n head ";
                 }
@@ -53,7 +59,6 @@ class Graph {
                     cout<<"-> "<<pCrawl->data;
                     pCrawl = pCrawl->next;
                 }
-                //if (pCrawl) cout << endl << endl;
             }
         }
 };
@@ -61,7 +66,8 @@ class Graph {
 int main() {
     Graph gh(5);
     gh.addEdge(0, 1);
-    gh.addEdge(1, 0);
+    gh.addEdge(1, 2);
+    gh.addEdge(2, 3);
  
     gh.printGraph();
  
