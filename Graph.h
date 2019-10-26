@@ -9,12 +9,11 @@
 class Graph {
 private:
     int vertices;
+    int aristas;
     std::map <int, listaAdyacencia*> nodosGrafo;
 
 public:
-    explicit Graph (int vertices) {
-        this->vertices = vertices;
-    }
+    explicit Graph () : vertices{0}, aristas{0} {}
 
     static nodoListaAdyacencia* crearNodoListaAdyacencia (int destino) {
         auto* nuevoNodo = new nodoListaAdyacencia;
@@ -27,6 +26,7 @@ public:
         nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(destino);
         if (!nodosGrafo[origen]) {
             nodosGrafo[origen] = new listaAdyacencia();
+            nodosGrafo[origen]->head = nullptr;
         }
         nuevoNodo->next = nodosGrafo[origen]->head;
         nodosGrafo[origen]->head = nuevoNodo;
@@ -34,21 +34,22 @@ public:
         nuevoNodo = crearNodoListaAdyacencia(origen);
         if (!nodosGrafo[destino]) {
             nodosGrafo[destino] = new listaAdyacencia();
+            nodosGrafo[destino]->head = nullptr;
         }
         nuevoNodo->next = nodosGrafo[destino]->head;
         nodosGrafo[destino]->head = nuevoNodo;
     }
 
     void printGraph() {
-        for (int v = 0; v < vertices; ++v) {
+        for (auto it = nodosGrafo.begin(); it != nodosGrafo.end(); ++it) {
             nodoListaAdyacencia* pCrawl;
-            if (nodosGrafo[v]) {
-                pCrawl = nodosGrafo[v]->head;
+            if (nodosGrafo[it->first]) {
+                pCrawl = nodosGrafo[it->first]->head;
             } else {
                 pCrawl = nullptr;
             }
             if (pCrawl) {
-                std::cout << "\nAdjacency list of vertex " << v << "\n head ";
+                std::cout << "\nAdjacency list of vertex " << it->first << "\n head ";
             }
             while (pCrawl) {
                 std::cout<<"-> "<<pCrawl->data;
