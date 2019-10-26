@@ -5,11 +5,11 @@
     "Country": "Canada",
     "Longitude": "-59.785278",
     "Latitude": "54.910278",
-    "Id": "7252",
+    "Id": "1",
     "destinations": [
-      "5492",
-      "188",
-      "5502"
+      "2",
+      "3",
+      "4"
     ]
   },
   {
@@ -18,10 +18,10 @@
     "Country": "Nigeria",
     "Longitude": "5.45",
     "Latitude": "5.31",
-    "Id": "6972",
+    "Id": "4",
     "destinations": [
-      "260",
-      "273"
+      "5",
+      "6"
     ]
   },
   {
@@ -30,9 +30,9 @@
     "Country": "United States",
     "Longitude": "-69.0992303",
     "Latitude": "44.0601111",
-    "Id": "4026",
+    "Id": "2",
     "destinations": [
-      "3448"
+      "3"
     ]
   }
 ]

@@ -7,21 +7,23 @@
 #include <fstream>
 #include "nlohmann/json.hpp"
 #include "Airport.h"
+#include <map>
 
 using namespace std;
 using json = nlohmann::json;
 
 class ParserAirports{
-private:
-    vector<Airport*> vec_airports;
+public:
+    //vector<Airport*> vec_airports;
+    map<int, Airport*> map_airports;
     string json_file;
 
     void printValues(){
-        for(auto element : vec_airports){   // each airport
-            cout << "id Airport: " << element->id << '\n';
+        for(auto it = map_airports.begin(); it != map_airports.end(); ++it) {
+            cout << "Id Airport: " << it->first << " \n";
             cout << "Destinations: " << '\n';
-            for(auto id_destinos : element->destinations){
-                cout << id_destinos << " ";
+            for(auto element : (it->second)->destinations){
+                cout << element << " ";
             }
             cout << '\n';
         }
@@ -44,11 +46,9 @@ private:
             for (const auto& destino : destinos_vec) {
                 destinations.push_back(stoi(destino));      // add destinations to vector<int>
             }
-            //cout << "Print destinos: " << '\n';
-            //for(auto element : destinations) cout << element << " ";
-            //cout << '\n';
-            Airport* airport_obj = new Airport(id_airport, destinations);    //create pointer to object Airport
-            vec_airports.push_back(airport_obj);
+            Airport* airport_obj = new Airport(destinations);    //create pointer to object Airport
+            //vec_airports.push_back(airport_obj);
+            map_airports[id_airport] = airport_obj;
         }
     }
 
@@ -60,8 +60,8 @@ public:
 
     ~ParserAirports(){
         cout << "Destructor called \n";
-        for(auto element : vec_airports){
-            delete element;
+        for(auto it = map_airports.begin(); it != map_airports.end(); ++it){
+            delete it->second;
         }
     }
 
