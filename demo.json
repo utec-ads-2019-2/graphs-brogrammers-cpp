@@ -1,0 +1,38 @@
+[
+  {
+    "City": "Postville",
+    "Name": "Postville Airport",
+    "Country": "Canada",
+    "Longitude": "-59.785278",
+    "Latitude": "54.910278",
+    "Id": "7252",
+    "destinations": [
+      "5492",
+      "188",
+      "5502"
+    ]
+  },
+  {
+    "City": "Osubi",
+    "Name": "Warri Airport",
+    "Country": "Nigeria",
+    "Longitude": "5.45",
+    "Latitude": "5.31",
+    "Id": "6972",
+    "destinations": [
+      "260",
+      "273"
+    ]
+  },
+  {
+    "City": "Rockland",
+    "Name": "Knox County Regional Airport",
+    "Country": "United States",
+    "Longitude": "-69.0992303",
+    "Latitude": "44.0601111",
+    "Id": "4026",
+    "destinations": [
+      "3448"
+    ]
+  }
+]
