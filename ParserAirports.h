@@ -5,8 +5,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include "nlohmann/json.hpp"
 
+#include "Graph.h"
 #include "Airport.h"
 
 using json = nlohmann::json;
@@ -14,20 +16,21 @@ using json = nlohmann::json;
 class ParserAirports{
 public:
     std::map <int, Airport*> aeropuertos;
+    Graph grafoAeropuertos;
     std::string json_file;
 
     void printValues(){
         for (auto element : aeropuertos) {
             std::cout << "id Airport: " << element.first << '\n';
             std::cout << "Destinations: " << '\n';
-            for(auto id_destinos : element.second->destinations){
+            for(auto id_destinos : element.second->destinos){
                 std::cout << id_destinos << " ";
             }
             std::cout << '\n';
         }
     }
 
-    std::vector <int> extraerDestinos(json &objeto) {
+    static std::vector <int> extraerDestinos(json &objeto) {
         std::vector <int> destinos;
         std::vector <std::string> destinos_vec = objeto.at("destinations");
         destinos.reserve(destinos_vec.size());
@@ -37,12 +40,22 @@ public:
         return destinos;
     }
 
+    void crearAristas() {
+        for (auto element : aeropuertos) {
+            int idOrigen = element.first;
+            std::vector <int> destinos = element.second->destinos;
+            for (auto dest : destinos) {
+                grafoAeropuertos.agregarArista(idOrigen, dest, aeropuertos);
+            }
+        }
+    }
+
     void readFile(){
         std::ifstream i(json_file);
         json j;
         i >> j;
-        for (json::iterator it = j.begin(); it != j.end(); ++it) {
-            json objeto = *it;
+        for (auto & it : j) {
+            json objeto = it;
             std::string id = objeto.at("Id");
             int id_aeropuerto = std::stoi(id);
 
@@ -53,17 +66,23 @@ public:
             double longitud    = std::stod(lon);
             std::string lat    = objeto.at("Latitude");
             double latitud     = std::stod(lat);
-            std::vector <int> destinos = extraerDestinos(*it);
-            
-            Airport* aeropuerto = new Airport(ciudad, nombre, pais, longitud, latitud, destinos);
+            std::vector <int> destinos = extraerDestinos(it);
+
+            auto* aeropuerto = new Airport(ciudad, nombre, pais, longitud, latitud, destinos);
 
             aeropuertos [id_aeropuerto] = aeropuerto;
         }
     }
 
     ParserAirports()= default;;
-    ParserAirports(string _json_file) : json_file(_json_file){
+
+    explicit ParserAirports(string _json_file) : json_file(std::move(_json_file)){
         readFile();
+    }
+
+    Graph generarGrafo() {
+        crearAristas();
+        return grafoAeropuertos;
     }
 
     ~ParserAirports(){
