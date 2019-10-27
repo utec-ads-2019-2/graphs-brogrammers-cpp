@@ -1,28 +1,34 @@
-#ifndef GRAPHS_BROGRAMMERS_CPP_AIRPORT_H
-#define GRAPHS_BROGRAMMERS_CPP_AIRPORT_H
+#ifndef PROYECTO_AIRPORTS_AIRPORT_H
+#define PROYECTO_AIRPORTS_AIRPORT_H
 
+#include <string>
 #include <utility>
 #include <vector>
 
 using namespace std;
-class Airport{
-    vector<int> destinations;
-    std::string city;
-    std::string name;
-    std::string country;
-    double longitude;
-    double latitude;
 
-    explicit Airport(vector<int> _dest) : destinations{std::move(_dest)} {};
+class Airport {
+public:
+    std::string ciudad;
+    std::string nombre;
+    std::string pais;
+    double longitud;
+    double latitud;
+    std::vector <int> destinos;
 
-    explicit Airport(vector<int> _dest,
-                     double _longitude,
-                     double _latitude
-    ) : destinations{std::move(_dest)},
-        longitude{_longitude},
-        latitude{_latitude} {};
+    Airport(std::string ciudad,
+            std::string nombre,
+            std::string pais,
+            double longitud,
+            double latitud,
+            std::vector <int> destinos
+    ) : ciudad{std::move(ciudad)},
+        nombre{std::move(nombre)},
+        pais{std::move(pais)},
+        longitud{longitud},
+        latitud{latitud},
+        destinos{std::move(destinos)} {}
 
-    friend class ParserAirports;
 };
 
-#endif //GRAPHS_BROGRAMMERS_CPP_AIRPORT_H
+#endif //PROYECTO_AIRPORTS_AIRPORT_H
