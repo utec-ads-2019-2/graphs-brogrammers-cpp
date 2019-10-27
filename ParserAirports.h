@@ -26,6 +26,9 @@ public:
                 cout << element << " ";
             }
             cout << '\n';
+            cout << "Longitude: " << (it->second)->longitude << '\n';
+            cout << "Latitude: " << (it->second)->latitude << '\n';
+            cout << '\n';
         }
     }
 
@@ -42,12 +45,17 @@ public:
             // Get Destinations
             vector<int> destinations;
             std::vector<std::string> destinos_vec = object.at("destinations");
+            //Get Latitude and Longitude
+            string lati = object.at("Latitude");
+            string longi = object.at("Longitude");
+            long double latitude = stold(lati);
+            long double longitude = stold(longi);
             destinations.reserve(destinos_vec.size());
             for (const auto& destino : destinos_vec) {
-                destinations.push_back(stoi(destino));      // add destinations to vector<int>
+                destinations.push_back(stoi(destino));      // agrega destinos to vector<int> destinations
             }
-            Airport* airport_obj = new Airport(destinations);    //create pointer to object Airport
-            //vec_airports.push_back(airport_obj);
+            //Airport* airport_obj = new Airport(destinations);    //create pointer to object Airport
+            Airport* airport_obj = new Airport(destinations, longitude, latitude);    //create pointer to object Airport
             map_airports[id_airport] = airport_obj;
         }
     }
