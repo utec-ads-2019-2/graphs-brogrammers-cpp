@@ -2,15 +2,10 @@
 #include "ParserAirports.h"
 
 int main() {
-    /*Graph gh;
-    gh.addEdge(0, 1);
-    gh.addEdge(1, 2);
-    gh.addEdge(2, 3);
 
-    gh.printGraph();*/
-
-    ParserAirports parser("../demo.json");
-    parser.print();
+    ParserAirports parserAirports("demo.json");
+    Graph grafoAeropuertos = parserAirports.generarGrafo();
+    grafoAeropuertos.printGraph();
 
     return 0;
 }
