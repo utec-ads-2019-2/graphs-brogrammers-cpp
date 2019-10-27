@@ -16,19 +16,7 @@ using json = nlohmann::json;
 class ParserAirports{
 public:
     std::map <int, Airport*> aeropuertos;
-    Graph grafoAeropuertos;
     std::string json_file;
-
-    void printValues(){
-        for (auto element : aeropuertos) {
-            std::cout << "id Airport: " << element.first << '\n';
-            std::cout << "Destinations: " << '\n';
-            for(auto id_destinos : element.second->destinos){
-                std::cout << id_destinos << " ";
-            }
-            std::cout << '\n';
-        }
-    }
 
     static std::vector <int> extraerDestinos(json &objeto) {
         std::vector <int> destinos;
@@ -40,12 +28,13 @@ public:
         return destinos;
     }
 
-    void crearAristas() {
+    void crearAristas(Graph &grafoAeropuertos) {
+        grafoAeropuertos.cargarData(aeropuertos);
         for (auto element : aeropuertos) {
             int idOrigen = element.first;
             std::vector <int> destinos = element.second->destinos;
             for (auto dest : destinos) {
-                grafoAeropuertos.agregarArista(idOrigen, dest, aeropuertos);
+                grafoAeropuertos.agregarAristaAeropuerto(idOrigen, dest);
             }
         }
     }
@@ -76,24 +65,30 @@ public:
 
     ParserAirports()= default;;
 
-    explicit ParserAirports(string _json_file) : json_file(std::move(_json_file)){
+    explicit ParserAirports(std::string _json_file) : json_file(std::move(_json_file)){
         readFile();
     }
 
-    Graph generarGrafo() {
-        crearAristas();
-        return grafoAeropuertos;
-    }
-
-    ~ParserAirports(){
-        cout << "Destructor called \n";
-        for(auto element : aeropuertos){
-            delete element.second;
-        }
+    void generarGrafo(Graph &grafoAeropuertos) {
+        crearAristas(grafoAeropuertos);
     }
 
     void print(){
-        printValues();
+        for (auto element : aeropuertos) {
+            std::cout << "id Airport: " << element.first << '\n';
+            std::cout << "Destinations: " << '\n';
+            for(auto id_destinos : element.second->destinos){
+                std::cout << id_destinos << " ";
+            }
+            std::cout << '\n';
+        }
+    }
+
+    ~ParserAirports(){
+        std::cout << "Destructor parser" << std::endl;
+        for(auto element : aeropuertos){
+            delete element.second;
+        }
     }
 
 };

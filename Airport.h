@@ -5,8 +5,6 @@
 #include <utility>
 #include <vector>
 
-using namespace std;
-
 class Airport {
 public:
     std::string ciudad;
