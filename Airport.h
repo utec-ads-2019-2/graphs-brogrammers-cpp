@@ -10,14 +10,14 @@ class Airport{
     std::string city;
     std::string name;
     std::string country;
-    long double longitude;
-    long double latitude;
+    double longitude;
+    double latitude;
 
     explicit Airport(vector<int> _dest) : destinations{std::move(_dest)} {};
 
     explicit Airport(vector<int> _dest,
-                     long double _longitude,
-                     long double _latitude
+                     double _longitude,
+                     double _latitude
     ) : destinations{std::move(_dest)},
         longitude{_longitude},
         latitude{_latitude} {};

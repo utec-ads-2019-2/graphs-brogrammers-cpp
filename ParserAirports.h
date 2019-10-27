@@ -26,8 +26,8 @@ public:
                 cout << element << " ";
             }
             cout << '\n';
-            cout << "Longitude: " << (it->second)->longitude << '\n';
-            cout << "Latitude: " << (it->second)->latitude << '\n';
+            cout << "Longitude: " << (std::fixed) << std::setprecision(6) << (it->second)->longitude << '\n';
+            cout << "Latitude: " << (std::fixed) << std::setprecision(6) << (it->second)->latitude << '\n';
             cout << '\n';
         }
     }
@@ -48,8 +48,10 @@ public:
             //Get Latitude and Longitude
             string lati = object.at("Latitude");
             string longi = object.at("Longitude");
-            long double latitude = stold(lati);
-            long double longitude = stold(longi);
+            //cout << "str longi: " << longi << '\n';
+            double latitude = stod(lati);
+            double longitude = stod(longi);
+            //cout << "d longi: " << std::fixed << std::setprecision(6) << longitude << '\n';
             destinations.reserve(destinos_vec.size());
             for (const auto& destino : destinos_vec) {
                 destinations.push_back(stoi(destino));      // agrega destinos to vector<int> destinations
