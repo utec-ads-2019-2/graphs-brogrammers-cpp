@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <queue>
 
 #include "Edge.h"
 #include "Airport.h"
@@ -48,6 +49,35 @@ private:
         }
         std::cout << "Conexo: ";
         return num_connected == 1;  // si hay 1 componente conectado return true, si hay 2 o mas componentes conectados return false
+    }
+
+    bool checkBipartito(){
+        std::map<int,int> map_nodos_color;      // '1' used for first color and '0' for second color
+        for(auto const& element : nodosGrafo){
+            map_nodos_color[element.first] =  -1;		// init all nodes in the map_color with 'No colored'
+        }
+        map_nodos_color[nodosGrafo.begin()->first] = 1;
+
+        std::queue<int> q_nodes;
+        q_nodes.push(nodosGrafo.begin()->first); //Encolamos el primer id_node y go for BFS traversal
+
+        while(!q_nodes.empty()){
+            int u = q_nodes.front();    // sacamos de la cola
+            q_nodes.pop();
+            auto* actual = nodosGrafo[u]->head;
+            //Busca todos los nodos No coloreados adyacentes a 'u'
+            while(actual){
+                if(map_nodos_color[actual->idDestino] == -1){   // si el destino No esta coloreado
+                    map_nodos_color[actual->idDestino] = 1 - map_nodos_color[u];
+                    q_nodes.push(actual->idDestino);    //ponemos en cola el nodo que acabamos de colorear
+                }
+                else if(map_nodos_color[actual->idDestino] == map_nodos_color[u]){
+                    return false;
+                }
+                actual = actual->next;
+            }
+        }
+        return true;
     }
 
 protected:
@@ -231,6 +261,11 @@ public:
             std::cout << "Grafo Dirigido \n";
             return checkComponentesConectados();
         }
+    }
+
+    bool esBipartito(){
+        std::cout << "Bipartito: ";
+        return checkBipartito();
     }
 
     static nodoMinHeap* nuevoNodoMinHeap(int valor, double clave) {

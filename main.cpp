@@ -20,5 +20,6 @@ int main() {
     std::cout << std::boolalpha << grafoAeropuertos.esConexo() << std::endl;
     grafoAeropuertos.agregarVertice(5);
     std::cout << std::boolalpha << grafoAeropuertos.esConexo() << std::endl;
+    std::cout << std::boolalpha << grafoAeropuertos.esBipartito() << std::endl;
     return 0;
 }
