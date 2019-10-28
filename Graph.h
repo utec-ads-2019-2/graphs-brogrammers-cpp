@@ -19,6 +19,37 @@ private:
     std::map <int, listaAdyacencia*> nodosGrafo;
     std::map <int, Airport*> *data = nullptr;
 
+    void executeDFS(int id_nodo, std::map<int, bool> &map_nodes_visited){
+        map_nodes_visited[id_nodo] = true;
+        std::cout << id_nodo << " ";
+        //Recursividad para todos los vertices adyacenetes a este nodo
+        auto* actual = nodosGrafo[id_nodo]->head;
+        while (actual) {
+            if(!map_nodes_visited[actual->idDestino]){
+                executeDFS(actual->idDestino, map_nodes_visited);
+            }
+            actual = actual->next;
+        }
+    }
+
+    bool checkComponentesConectados(){
+        std::map<int, bool> map_nodes_visited;
+        int num_connected = 0;
+        for(auto const& element : nodosGrafo){
+            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+        }
+        std::cout << "Componentes conectados: \n";
+        for(auto const& element : nodosGrafo){
+            if(!map_nodes_visited[element.first]){
+                executeDFS(element.first, map_nodes_visited); // imprime todos los nodos alcanzables desde el nodo 'element.first'
+                std::cout << "\n";
+                num_connected++;
+            }
+        }
+        std::cout << "Conexo: ";
+        return num_connected == 1;  // si hay 1 componente conectado return true, si hay 2 o mas componentes conectados return false
+    }
+
 protected:
     static double gradosARadianes(double grados) {
         return grados * (M_PI / 180);
@@ -188,6 +219,17 @@ public:
         } else {
             double densidad = (2*(double)(aristas))/((double)(vertices)*((double)(vertices)-1));
             return densidad >= cotaDensidad;
+        }
+    }
+
+    bool esConexo() {
+        if(!esDirigido){
+            std::cout << "Grafo No Dirigido \n";
+            return checkComponentesConectados();
+        }
+        else{
+            std::cout << "Grafo Dirigido \n";
+            return checkComponentesConectados();
         }
     }
 

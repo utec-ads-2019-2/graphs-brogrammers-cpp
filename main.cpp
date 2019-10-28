@@ -16,7 +16,9 @@ int main() {
     grafoAeropuertos.agregarArista(3, 4, 1);
     grafoAeropuertos.printGraph();
     grafoAeropuertos.algoritmoKruskal();
-
-
+    //Test AngeLinux
+    std::cout << std::boolalpha << grafoAeropuertos.esConexo() << std::endl;
+    grafoAeropuertos.agregarVertice(5);
+    std::cout << std::boolalpha << grafoAeropuertos.esConexo() << std::endl;
     return 0;
 }
