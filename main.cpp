@@ -15,7 +15,8 @@ int main() {
     grafoAeropuertos.agregarArista(1, 4, 1);
     grafoAeropuertos.agregarArista(3, 4, 1);
     grafoAeropuertos.printGraph();
-    grafoAeropuertos.algoritmoPrim();
+    grafoAeropuertos.algoritmoKruskal();
+
 
     return 0;
 }

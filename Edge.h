@@ -34,9 +34,14 @@ class minHeap {
 public:
     int numeroNodos;
     int capacidad;
-    std::map <int, int> *posicion{};
-    std::map <int, nodoMinHeap*> *array{};
+    std::map <int, int> posicion{};
+    std::map <int, nodoMinHeap*> array{};
     minHeap(int nodos, int capacity) : numeroNodos{nodos}, capacidad{capacity} {}
+    ~minHeap() {
+        for (auto element : array) {
+            delete element.second;
+        }
+    }
 };
 
 #endif //PROYECTO_AIRPORTS_EDGE_H

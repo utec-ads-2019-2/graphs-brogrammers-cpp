@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <algorithm>
 
 #include "Edge.h"
 #include "Airport.h"
@@ -12,6 +13,9 @@ private:
     int vertices;
     int aristas;
     bool esDirigido = false;
+    std::map <int, int> padreKruskal;
+    std::vector <std::pair <int, std::pair <int, int>>> nodosKruskal;
+    std::vector <std::pair <int, std::pair <int, int>>> arbolMinimaExpansion;
     std::map <int, listaAdyacencia*> nodosGrafo;
     std::map <int, Airport*> *data = nullptr;
 
@@ -205,8 +209,8 @@ public:
 
     static void minimoHeapify(minHeap *minimoHeap, int indice) {
         int menor = indice, izquierda = 2 * indice + 1, derecha = 2 * indice + 2;
-        auto *nodoDerecha1 = minimoHeap->array->find(derecha)->second;
-        auto *nodoMenor1 = minimoHeap->array->find(menor)->second;
+        auto *nodoDerecha1 = minimoHeap->array.find(derecha)->second;
+        auto *nodoMenor1 = minimoHeap->array.find(menor)->second;
         if (izquierda < minimoHeap->numeroNodos && nodoDerecha1->clave < nodoMenor1->clave) {
             menor = izquierda;
         }
@@ -214,11 +218,11 @@ public:
             menor = derecha;
         }
         if (menor != indice) {
-            auto *nodoMenor = minimoHeap->array->find(menor)->second;
-            auto *nodoIndice = minimoHeap->array->find(indice)->second;
-            minimoHeap->posicion->find(nodoMenor->valor)->second = indice;
-            minimoHeap->posicion->find(nodoIndice->valor)->second = menor;
-            swapNodoMinHeap(&minimoHeap->array->find(menor)->second, &minimoHeap->array->find(indice)->second);
+            auto *nodoMenor = minimoHeap->array.find(menor)->second;
+            auto *nodoIndice = minimoHeap->array.find(indice)->second;
+            minimoHeap->posicion.find(nodoMenor->valor)->second = indice;
+            minimoHeap->posicion.find(nodoIndice->valor)->second = menor;
+            swapNodoMinHeap(&minimoHeap->array.find(menor)->second, &minimoHeap->array.find(indice)->second);
             minimoHeapify(minimoHeap, menor);
         }
     }
@@ -231,29 +235,29 @@ public:
         if (estaVacio(minimoHeap)) {
             return nullptr;
         }
-        nodoMinHeap *raiz = minimoHeap->array->begin()->second;
-        nodoMinHeap *ultimoNodo = minimoHeap->array->rbegin()->second;
-        minimoHeap->array->begin()->second = ultimoNodo;
-        minimoHeap->posicion->find(raiz->valor)->second = minimoHeap->numeroNodos - 1;
-        minimoHeap->posicion->find(ultimoNodo->valor)->second = 0;
+        nodoMinHeap *raiz = minimoHeap->array.begin()->second;
+        nodoMinHeap *ultimoNodo = minimoHeap->array.rbegin()->second;
+        minimoHeap->array.begin()->second = ultimoNodo;
+        minimoHeap->posicion.find(raiz->valor)->second = minimoHeap->numeroNodos - 1;
+        minimoHeap->posicion.find(ultimoNodo->valor)->second = 0;
         --minimoHeap->numeroNodos;
         minimoHeapify(minimoHeap, 0);
         return raiz;
     }
 
     static void disminuirClave(minHeap *minimoHeap, int valor, double clave) {
-        int i = minimoHeap->posicion->find(valor)->second;
-        minimoHeap->array->find(i)->second->clave = clave;
-        while (i && minimoHeap->array->find(i)->second->clave < minimoHeap->array->find((i - 1) / 2)->second->clave) {
-            minimoHeap->posicion->find(minimoHeap->array->find(i)->second->valor)->second = (i - 1) / 2;
-            minimoHeap->posicion->find(minimoHeap->array->find((i - 1) / 2)->second->valor)->second = i;
-            swapNodoMinHeap(&minimoHeap->array->find(i)->second, &minimoHeap->array->find((i - 1) / 2)->second);
+        int i = minimoHeap->posicion.find(valor)->second;
+        minimoHeap->array.find(i)->second->clave = clave;
+        while (i && minimoHeap->array.find(i)->second->clave < minimoHeap->array.find((i - 1) / 2)->second->clave) {
+            minimoHeap->posicion.find(minimoHeap->array.find(i)->second->valor)->second = (i - 1) / 2;
+            minimoHeap->posicion.find(minimoHeap->array.find((i - 1) / 2)->second->valor)->second = i;
+            swapNodoMinHeap(&minimoHeap->array.find(i)->second, &minimoHeap->array.find((i - 1) / 2)->second);
             i = (i - 1) / 2;
         }
     }
 
     static bool estaEnMinHeap(minHeap *minimoHeap, int valor) {
-        return minimoHeap->posicion->find(valor)->second < minimoHeap->numeroNodos;
+        return minimoHeap->posicion.find(valor)->second < minimoHeap->numeroNodos;
     }
 
     static void imprimirMapa(const std::map <int, int>& resultado) {
@@ -273,13 +277,13 @@ public:
         for (auto it = ++nodosGrafo.begin(); it != nodosGrafo.end(); ++it) {
             padre[it->first] = -1;
             auto *nodoNuevo = nuevoNodoMinHeap(it->first, clave.find(it->first)->second);
-            minimoHeap->array->insert({it->first, nodoNuevo});
-            minimoHeap->posicion->insert({it->first, it->first});
+            minimoHeap->array.insert({it->first, nodoNuevo});
+            minimoHeap->posicion.insert({it->first, it->first});
         }
         clave[0] = 0;
         auto it = nodosGrafo.begin();
-        minimoHeap->array->begin()->second = nuevoNodoMinHeap(it->first, clave.find(it->first)->second);
-        minimoHeap->posicion->begin()->second = 0;
+        minimoHeap->array.begin()->second = nuevoNodoMinHeap(it->first, clave.find(it->first)->second);
+        minimoHeap->posicion.begin()->second = 0;
         minimoHeap->numeroNodos = tamGrafo;
         while (!estaVacio(minimoHeap)) {
             auto *nodoMinimo = extraerMinimo(minimoHeap);
@@ -296,6 +300,55 @@ public:
             }
         }
         imprimirMapa(padre);
+    }
+
+    void agregarAVector(int origen, listaAdyacencia *&nodo) {
+        auto *actual = nodo->head;
+        while (actual) {
+            nodosKruskal.emplace_back(actual->peso, std::make_pair(origen, actual->idDestino));
+            actual = actual->next;
+        }
+    }
+
+    void construirConjunto() {
+        for (auto & it : nodosGrafo) {
+            padreKruskal[it.first] = it.first;
+            agregarAVector(it.first, it.second);
+        }
+    }
+
+    int encontrarConjunto(int nodo) {
+        if (nodo == padreKruskal[nodo]) {
+            return nodo;
+        } else {
+            return encontrarConjunto(padreKruskal[nodo]);
+        }
+    }
+
+    void unionSet(int nodoA, int nodoB) {
+        padreKruskal[nodoA] = padreKruskal[nodoB];
+    }
+
+    void algoritmoKruskal() {
+        int i, representanteA, representanteB;
+        construirConjunto();
+        std::sort(nodosKruskal.begin(), nodosKruskal.end());
+        for (auto & it : nodosKruskal) {
+            representanteA = encontrarConjunto(it.second.first);
+            representanteB = encontrarConjunto(it.second.second);
+            if (representanteA != representanteB) {
+                arbolMinimaExpansion.push_back(it);
+                unionSet(representanteA, representanteB);
+            }
+        }
+        imprimirKruskal();
+    }
+
+    void imprimirKruskal() {
+        std::cout << "Arista:   " << "   Peso" << std::endl;
+        for (auto & it : arbolMinimaExpansion) {
+            std::cout << it.second.first << "  -  " << it.second.second << "   :   " << it.first << std::endl;
+        }
     }
 
     void printGraph() {
