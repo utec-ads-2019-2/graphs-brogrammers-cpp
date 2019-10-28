@@ -22,26 +22,4 @@ public:
     ~listaAdyacencia() = default;
 };
 
-class nodoMinHeap {
-public:
-    int valor = 0;
-    double clave = 0;
-    nodoMinHeap() = default;
-    nodoMinHeap(int value, double key) : valor{value}, clave{key} {}
-};
-
-class minHeap {
-public:
-    int numeroNodos;
-    int capacidad;
-    std::map <int, int> posicion{};
-    std::map <int, nodoMinHeap*> array{};
-    minHeap(int nodos, int capacity) : numeroNodos{nodos}, capacidad{capacity} {}
-    ~minHeap() {
-        for (auto element : array) {
-            delete element.second;
-        }
-    }
-};
-
 #endif //PROYECTO_AIRPORTS_EDGE_H

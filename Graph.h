@@ -5,6 +5,7 @@
 #include <map>
 #include <algorithm>
 #include <queue>
+#include <list>
 
 #include "Edge.h"
 #include "Airport.h"
@@ -14,13 +15,33 @@ private:
     int vertices;
     int aristas;
     bool esDirigido = false;
-    std::map <int, int> padreKruskal;
-    std::vector <std::pair <int, std::pair <int, int>>> nodosKruskal;
-    std::vector <std::pair <int, std::pair <int, int>>> arbolMinimaExpansion;
     std::map <int, listaAdyacencia*> nodosGrafo;
     std::map <int, Airport*> *data = nullptr;
 
-    void executeDFS(int id_nodo, std::map<int, bool> &map_nodes_visited){
+    std::list <std::pair <int, double>> *adyacenciaPrim{};
+
+    std::map <int, int> padreKruskal;
+    std::vector <std::pair <int, std::pair <int, int>>> nodosKruskal;
+    std::vector <std::pair <int, std::pair <int, int>>> arbolMinimaExpansion;
+
+protected:
+    static double gradosARadianes(double grados) {
+        return grados * (M_PI / 180);
+    }
+
+    double obtenerPeso(int origen, int destino) {
+        double radioTierra = 6371;
+        Airport *airportOrigen = data->find(origen)->second;
+        Airport *airportDestino = data->find(destino)->second;
+        double distanciaLatitud = gradosARadianes(airportDestino->latitud - airportOrigen->latitud);
+        double distanciaLongitud = gradosARadianes(airportDestino->longitud - airportOrigen->longitud);
+        double a = sin(distanciaLatitud / 2) * sin(distanciaLatitud / 2) + cos(gradosARadianes(airportOrigen->latitud)) * cos(gradosARadianes(airportDestino->latitud)) * sin(distanciaLongitud / 2) * sin(distanciaLongitud / 2);
+        double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+        double distancia = radioTierra * c;
+        return distancia;
+    }
+
+    void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
         std::cout << id_nodo << " ";
         //Recursividad para todos los vertices adyacenetes a este nodo
@@ -80,30 +101,47 @@ private:
         return true;
     }
 
-protected:
-    static double gradosARadianes(double grados) {
-        return grados * (M_PI / 180);
-    }
-
-    double obtenerPeso(int origen, int destino) {
-        double radioTierra = 6371;
-        Airport *airportOrigen = data->find(origen)->second;
-        Airport *airportDestino = data->find(destino)->second;
-        double distanciaLatitud = gradosARadianes(airportDestino->latitud - airportOrigen->latitud);
-        double distanciaLongitud = gradosARadianes(airportDestino->longitud - airportOrigen->longitud);
-        double a = sin(distanciaLatitud / 2) * sin(distanciaLatitud / 2) + cos(gradosARadianes(airportOrigen->latitud)) * cos(gradosARadianes(airportDestino->latitud)) * sin(distanciaLongitud / 2) * sin(distanciaLongitud / 2);
-        double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-        double distancia = radioTierra * c;
-        return distancia;
-    }
-
-public:
-    explicit Graph () : vertices{0}, aristas{0} {}
-
     static nodoListaAdyacencia* crearNodoListaAdyacencia (int origen, int destino, double peso) {
         auto* nuevoNodo = new nodoListaAdyacencia(destino, peso);
         return nuevoNodo;
     }
+
+    void agregarAVector(int origen, listaAdyacencia *&nodo) {
+        auto *actual = nodo->head;
+        while (actual) {
+            nodosKruskal.emplace_back(actual->peso, std::make_pair(origen, actual->idDestino));
+            actual = actual->next;
+        }
+    }
+
+    void construirConjunto() {
+        for (auto & it : nodosGrafo) {
+            padreKruskal[it.first] = it.first;
+            agregarAVector(it.first, it.second);
+        }
+    }
+
+    int encontrarConjunto(int nodo) {
+        if (nodo == padreKruskal[nodo]) {
+            return nodo;
+        } else {
+            return encontrarConjunto(padreKruskal[nodo]);
+        }
+    }
+
+    void unionSet(int nodoA, int nodoB) {
+        padreKruskal[nodoA] = padreKruskal[nodoB];
+    }
+
+    void imprimirKruskal() {
+        std::cout << "Arista:   " << "   Peso" << std::endl;
+        for (auto & it : arbolMinimaExpansion) {
+            std::cout << it.second.first << "  -  " << it.second.second << "   :   " << it.first << std::endl;
+        }
+    }
+
+public:
+    explicit Graph () : vertices{0}, aristas{0} {}
 
     bool buscarArista(int origen, int destino) {
         auto* actual = nodosGrafo[origen]->head;
@@ -268,163 +306,65 @@ public:
         return checkBipartito();
     }
 
-    static nodoMinHeap* nuevoNodoMinHeap(int valor, double clave) {
-        auto *nuevoNodo = new nodoMinHeap(valor, clave);
-        return nuevoNodo;
-    }
-
-    static minHeap* crearMinHeap(int capacidad) {
-        auto *nuevoMinHeap = new minHeap(0, capacidad);
-        return nuevoMinHeap;
-    }
-
-    static void swapNodoMinHeap(nodoMinHeap **a, nodoMinHeap **b) {
-        nodoMinHeap *t = *a;
-        *a = *b;
-        *b = t;
-    }
-
-    static void minimoHeapify(minHeap *minimoHeap, int indice) {
-        int menor = indice, izquierda = 2 * indice + 1, derecha = 2 * indice + 2;
-        auto *nodoDerecha1 = minimoHeap->array.find(derecha)->second;
-        auto *nodoMenor1 = minimoHeap->array.find(menor)->second;
-        if (izquierda < minimoHeap->numeroNodos && nodoDerecha1->clave < nodoMenor1->clave) {
-            menor = izquierda;
-        }
-        if (derecha < minimoHeap->numeroNodos && nodoDerecha1->clave < nodoMenor1->clave) {
-            menor = derecha;
-        }
-        if (menor != indice) {
-            auto *nodoMenor = minimoHeap->array.find(menor)->second;
-            auto *nodoIndice = minimoHeap->array.find(indice)->second;
-            minimoHeap->posicion.find(nodoMenor->valor)->second = indice;
-            minimoHeap->posicion.find(nodoIndice->valor)->second = menor;
-            swapNodoMinHeap(&minimoHeap->array.find(menor)->second, &minimoHeap->array.find(indice)->second);
-            minimoHeapify(minimoHeap, menor);
-        }
-    }
-
-    static int estaVacio(minHeap *minimoHeap) {
-        return minimoHeap->numeroNodos == 0;
-    }
-
-    static nodoMinHeap* extraerMinimo(minHeap *minimoHeap) {
-        if (estaVacio(minimoHeap)) {
-            return nullptr;
-        }
-        nodoMinHeap *raiz = minimoHeap->array.begin()->second;
-        nodoMinHeap *ultimoNodo = minimoHeap->array.rbegin()->second;
-        minimoHeap->array.begin()->second = ultimoNodo;
-        minimoHeap->posicion.find(raiz->valor)->second = minimoHeap->numeroNodos - 1;
-        minimoHeap->posicion.find(ultimoNodo->valor)->second = 0;
-        --minimoHeap->numeroNodos;
-        minimoHeapify(minimoHeap, 0);
-        return raiz;
-    }
-
-    static void disminuirClave(minHeap *minimoHeap, int valor, double clave) {
-        int i = minimoHeap->posicion.find(valor)->second;
-        minimoHeap->array.find(i)->second->clave = clave;
-        while (i && minimoHeap->array.find(i)->second->clave < minimoHeap->array.find((i - 1) / 2)->second->clave) {
-            minimoHeap->posicion.find(minimoHeap->array.find(i)->second->valor)->second = (i - 1) / 2;
-            minimoHeap->posicion.find(minimoHeap->array.find((i - 1) / 2)->second->valor)->second = i;
-            swapNodoMinHeap(&minimoHeap->array.find(i)->second, &minimoHeap->array.find((i - 1) / 2)->second);
-            i = (i - 1) / 2;
-        }
-    }
-
-    static bool estaEnMinHeap(minHeap *minimoHeap, int valor) {
-        return minimoHeap->posicion.find(valor)->second < minimoHeap->numeroNodos;
-    }
-
-    static void imprimirMapa(const std::map <int, int>& resultado) {
-        for (auto & it : resultado) {
-            std::cout << it.second << " - " << it.first << std::endl;
+    void agregarALista() {
+        for (auto & it : nodosGrafo) {
+            auto *actual = it.second->head;
+            while (actual) {
+                adyacenciaPrim[it.first].emplace_back(actual->idDestino, actual->peso);
+                actual = actual->next;
+            }
         }
     }
 
     void algoritmoPrim() {
-        int tamGrafo = vertices;
-        std::map<int, int> padre;
-        std::map<int, double> clave;
-        auto *minimoHeap = crearMinHeap(tamGrafo);
-        for (auto it = ++nodosGrafo.begin(); it != nodosGrafo.end(); ++it) {
-            clave[it->first] = INT_MAX;
-        }
-        for (auto it = ++nodosGrafo.begin(); it != nodosGrafo.end(); ++it) {
-            padre[it->first] = -1;
-            auto *nodoNuevo = nuevoNodoMinHeap(it->first, clave.find(it->first)->second);
-            minimoHeap->array.insert({it->first, nodoNuevo});
-            minimoHeap->posicion.insert({it->first, it->first});
-        }
-        clave[0] = 0;
-        auto it = nodosGrafo.begin();
-        minimoHeap->array.begin()->second = nuevoNodoMinHeap(it->first, clave.find(it->first)->second);
-        minimoHeap->posicion.begin()->second = 0;
-        minimoHeap->numeroNodos = tamGrafo;
-        while (!estaVacio(minimoHeap)) {
-            auto *nodoMinimo = extraerMinimo(minimoHeap);
-            int verticeTemporal = nodoMinimo->valor;
-            auto *pCrawl = nodosGrafo[verticeTemporal]->head;
-            while (pCrawl) {
-                int destinoTemporal = pCrawl->idDestino;
-                if (estaEnMinHeap(minimoHeap, destinoTemporal) && pCrawl->peso < clave[destinoTemporal]) {
-                    clave[destinoTemporal] = pCrawl->peso;
-                    padre[destinoTemporal] = verticeTemporal;
-                    disminuirClave(minimoHeap, destinoTemporal, clave[destinoTemporal]);
+        if (!esDirigido) {
+            adyacenciaPrim = new std::list<std::pair <int, double>> [nodosGrafo.rbegin()->first];
+            agregarALista();
+            std::priority_queue <std::pair <int, int>, std::vector <std::pair <int, int>>, std::greater<> > colaPrioridad;
+            int puntoInicio = nodosGrafo.begin()->first;
+            std::vector <double> clave(nodosGrafo.rbegin()->first, 2147483647);
+            std::map <int, int> arrayPadre;
+            std::vector <bool> estaEnMST(nodosGrafo.rbegin()->first, false);
+            colaPrioridad.push(std::make_pair(0, puntoInicio));
+            clave[puntoInicio] = 0;
+            while (!colaPrioridad.empty()) {
+                int verticeMenor = colaPrioridad.top().second;
+                colaPrioridad.pop();
+                estaEnMST[verticeMenor] = true;
+                for (auto & it : adyacenciaPrim[verticeMenor]) {
+                    int primerDestino = it.first;
+                    double peso = it.second;
+                    if (!estaEnMST[primerDestino] && clave[primerDestino] > peso) {
+                        clave[primerDestino] = peso;
+                        colaPrioridad.push(std::make_pair(clave[primerDestino], primerDestino));
+                        arrayPadre[primerDestino] = verticeMenor;
+                    }
                 }
-                pCrawl = pCrawl->next;
             }
-        }
-        imprimirMapa(padre);
-    }
-
-    void agregarAVector(int origen, listaAdyacencia *&nodo) {
-        auto *actual = nodo->head;
-        while (actual) {
-            nodosKruskal.emplace_back(actual->peso, std::make_pair(origen, actual->idDestino));
-            actual = actual->next;
-        }
-    }
-
-    void construirConjunto() {
-        for (auto & it : nodosGrafo) {
-            padreKruskal[it.first] = it.first;
-            agregarAVector(it.first, it.second);
-        }
-    }
-
-    int encontrarConjunto(int nodo) {
-        if (nodo == padreKruskal[nodo]) {
-            return nodo;
+            for (auto & iterador : arrayPadre) {
+                std::cout << iterador.second << " - " << iterador.first << " - " << clave[iterador.first] << std::endl;
+            }
         } else {
-            return encontrarConjunto(padreKruskal[nodo]);
+            throw std::invalid_argument("Algoritmo Prim no puede ser aplicado sobre grafos dirigidos");
         }
-    }
-
-    void unionSet(int nodoA, int nodoB) {
-        padreKruskal[nodoA] = padreKruskal[nodoB];
     }
 
     void algoritmoKruskal() {
-        int i, representanteA, representanteB;
-        construirConjunto();
-        std::sort(nodosKruskal.begin(), nodosKruskal.end());
-        for (auto & it : nodosKruskal) {
-            representanteA = encontrarConjunto(it.second.first);
-            representanteB = encontrarConjunto(it.second.second);
-            if (representanteA != representanteB) {
-                arbolMinimaExpansion.push_back(it);
-                unionSet(representanteA, representanteB);
+        if (!esDirigido) {
+            int i, representanteA, representanteB;
+            construirConjunto();
+            std::sort(nodosKruskal.begin(), nodosKruskal.end());
+            for (auto &it : nodosKruskal) {
+                representanteA = encontrarConjunto(it.second.first);
+                representanteB = encontrarConjunto(it.second.second);
+                if (representanteA != representanteB) {
+                    arbolMinimaExpansion.push_back(it);
+                    unionSet(representanteA, representanteB);
+                }
             }
-        }
-        imprimirKruskal();
-    }
-
-    void imprimirKruskal() {
-        std::cout << "Arista:   " << "   Peso" << std::endl;
-        for (auto & it : arbolMinimaExpansion) {
-            std::cout << it.second.first << "  -  " << it.second.second << "   :   " << it.first << std::endl;
+            imprimirKruskal();
+        } else {
+            throw std::invalid_argument("Algoritmo Kruskal no puede ser aplicado sobre grafos dirigidos");
         }
     }
 
@@ -452,6 +392,7 @@ public:
         for (auto element : nodosGrafo) {
             delete element.second;
         }
+        delete adyacenciaPrim;
     }
 
 };
