@@ -7,6 +7,10 @@
 #include <queue>
 #include <list>
 
+#include <graphics.h>
+#include <cmath>
+#include <conio.h>
+
 #include "Edge.h"
 #include "Airport.h"
 
@@ -196,6 +200,16 @@ protected:
         }
     }
 
+    void agregarALista() {
+        for (auto & it : nodosGrafo) {
+            auto *actual = it.second->head;
+            while (actual) {
+                adyacenciaPrim[it.first].emplace_back(actual->idDestino, actual->peso);
+                actual = actual->next;
+            }
+        }
+    }
+
 public:
     explicit Graph () : vertices{0}, aristas{0} {}
 
@@ -373,16 +387,6 @@ public:
         }
     }
 
-    void agregarALista() {
-        for (auto & it : nodosGrafo) {
-            auto *actual = it.second->head;
-            while (actual) {
-                adyacenciaPrim[it.first].emplace_back(actual->idDestino, actual->peso);
-                actual = actual->next;
-            }
-        }
-    }
-
     void algoritmoPrim() {
         if (!esDirigido) {
             int maximoId = nodosGrafo.rend()->first + 1;
@@ -434,6 +438,21 @@ public:
         } else {
             throw std::invalid_argument("Algoritmo Kruskal no puede ser aplicado sobre grafos dirigidos");
         }
+    }
+
+    void graficar() {
+        initwindow(800, 600);
+        int x, y;
+        line(0, 300, getmaxx(), 300);
+        line(400, 0, 400, getmaxy());
+        float pi = 3.1415;
+        for (int i = -360; i <= 360; ++i) {
+            x = (int)400+i;
+            y = (int)300-sin(i*pi/100)*25;
+            putpixel(x, y, WHITE);
+        }
+        getch();
+        closegraph();
     }
 
     void printGraph() {
