@@ -85,7 +85,6 @@ public:
     }
 
     ~ParserAirports(){
-        std::cout << "Destructor parser" << std::endl;
         for(auto element : aeropuertos){
             delete element.second;
         }

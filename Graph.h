@@ -101,6 +101,62 @@ protected:
         return true;
     }
 
+    void executeDFS_SC(int id_nodo, std::map<int, bool> &map_nodes_visited){
+        map_nodes_visited[id_nodo] = true;
+        //std::cout << id_nodo << " ";
+        //Recursividad para todos los vertices adyacentes a este nodo
+        auto* actual = nodosGrafo[id_nodo]->head;
+        while (actual) {
+            if(!map_nodes_visited[actual->idDestino]){
+                executeDFS_SC(actual->idDestino, map_nodes_visited);
+            }
+            actual = actual->next;
+        }
+    }
+
+    void getTranspose(Graph &rgraph){
+        for(auto const& element : nodosGrafo){
+            auto* actual = element.second->head;
+            while(actual){
+                rgraph.agregarArista(actual->idDestino, element.first, 1);  // Generate Transpose Graph
+                actual = actual->next;
+            }
+        }
+        //std::cout << "Reverse Graph \n";
+        //rgraph.printGraph();
+    }
+
+    bool isStronglyConnected(){
+        std::map<int, bool> map_nodes_visited;
+        for(auto const& element : nodosGrafo){
+            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+        }
+        executeDFS_SC(nodosGrafo.begin()->first, map_nodes_visited); // DFS traversal for first node
+
+        for(auto const& element : nodosGrafo){          //If DFS did not visit all nodes return false
+            if(!map_nodes_visited[element.first]){
+                std::cout << "Failed first DFS \n";
+                return false;
+            }
+        }
+        // Create reversed graph
+        Graph reversedGraph;
+        getTranspose(reversedGraph);
+        //Set everything to false again for second DFS in the reversed graph
+        for(auto const& element : nodosGrafo){
+            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+        }
+        //executeDFS_SC(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
+        reversedGraph.executeDFS_SC(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
+        //Last: if DFS did not visit all nodes return false
+        for(auto const& element : nodosGrafo){
+            if(!map_nodes_visited[element.first]){
+                return false;
+            }
+        }
+        return true;
+    }
+
     static nodoListaAdyacencia* crearNodoListaAdyacencia (int origen, int destino, double peso) {
         auto* nuevoNodo = new nodoListaAdyacencia(destino, peso);
         return nuevoNodo;
@@ -306,6 +362,17 @@ public:
         return checkBipartito();
     }
 
+    bool esFuertementeConexo(){
+        std::cout << "Fuertemente Conexo: ";
+        if(esDirigido){
+            return isStronglyConnected();
+        }
+        else{
+            std::cout << "(Es un grafo No Dirigido) ";
+            return false;
+        }
+    }
+
     void agregarALista() {
         for (auto & it : nodosGrafo) {
             auto *actual = it.second->head;
@@ -318,13 +385,14 @@ public:
 
     void algoritmoPrim() {
         if (!esDirigido) {
-            adyacenciaPrim = new std::list<std::pair <int, double>> [nodosGrafo.rbegin()->first];
+            int maximoId = nodosGrafo.rend()->first + 1;
+            adyacenciaPrim = new std::list<std::pair <int, double>> [maximoId];
             agregarALista();
             std::priority_queue <std::pair <int, int>, std::vector <std::pair <int, int>>, std::greater<> > colaPrioridad;
             int puntoInicio = nodosGrafo.begin()->first;
-            std::vector <double> clave(nodosGrafo.rbegin()->first, 2147483647);
+            std::vector <double> clave(maximoId, 2147483647);
             std::map <int, int> arrayPadre;
-            std::vector <bool> estaEnMST(nodosGrafo.rbegin()->first, false);
+            std::vector <bool> estaEnMST(maximoId, false);
             colaPrioridad.push(std::make_pair(0, puntoInicio));
             clave[puntoInicio] = 0;
             while (!colaPrioridad.empty()) {
