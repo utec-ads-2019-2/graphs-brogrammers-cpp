@@ -4,9 +4,9 @@
 int main() {
 
     Graph grafoAeropuertos;
-    ParserAirports parserAirports("../demo.json");
+    ParserAirports parserAirports("../airports.json");
     parserAirports.generarGrafo(grafoAeropuertos);
-    grafoAeropuertos.printGraph();
+    //grafoAeropuertos.printGraph();
     /*Graph grafoPrim;
     grafoAeropuertos.algoritmoPrim(grafoPrim);
     grafoPrim.printGraph();*/

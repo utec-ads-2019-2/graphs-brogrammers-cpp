@@ -45,7 +45,7 @@ protected:
 
     void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
-        std::cout << id_nodo << " ";
+        //std::cout << id_nodo << " ";
         auto* actual = nodosGrafo[id_nodo]->head;
         while (actual) {
             if(!map_nodes_visited[actual->idDestino]){
@@ -61,11 +61,11 @@ protected:
         for(auto const& element : nodosGrafo){
             map_nodes_visited[element.first] =  false;
         }
-        std::cout << "Componentes conectados: \n";
+        //std::cout << "Componentes conectados: \n";
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
                 executeDFS(element.first, map_nodes_visited);
-                std::cout << "\n";
+                //std::cout << "\n";
                 num_connected++;
             }
         }
@@ -353,37 +353,32 @@ public:
 
     bool esConexo() {
         if(!esDirigido){
-            std::cout << "Grafo No Dirigido \n";
             return checkComponentesConectados();
         }
         else{
-            std::cout << "Grafo Dirigido \n";
-            return checkComponentesConectados();
+            throw std::invalid_argument("Propiedad conexo solo valido para grafos no dirigidos");
         }
     }
 
     bool esBipartito(){
-        std::cout << "Bipartito: ";
         return checkBipartito();
     }
 
     bool esFuertementeConexo(){
-        std::cout << "Fuertemente Conexo: ";
         if(esDirigido){
             return isStronglyConnected();
         }
         else{
-            std::cout << "(Es un grafo No Dirigido) ";
-            return false;
+            throw std::invalid_argument("Propiedad fuertemente conexo solo valido para grafos dirigidos");
         }
     }
 
     void algoritmoPrim(Graph &grafoResultado) {
-        if (!esDirigido) {
+        if (!esDirigido && this->esConexo()) {
             int maximoId = nodosGrafo.rend()->first + 1;
             adyacenciaPrim = new std::list<std::pair <int, double>> [maximoId];
             agregarALista();
-            std::priority_queue <std::pair <int, int>, std::vector <std::pair <int, int>>, std::greater<> > colaPrioridad;
+            std::priority_queue <std::pair <int, int>, std::vector <std::pair <int, int>>, std::greater<std::pair <int, int>> > colaPrioridad;
             int puntoInicio = nodosGrafo.begin()->first;
             std::vector <double> clave(maximoId, 2147483647);
             std::map <int, int> arrayPadre;
@@ -409,7 +404,7 @@ public:
                 //std::cout << iterador.second << " - " << iterador.first << " - " << clave[iterador.first] << std::endl;
             }
         } else {
-            throw std::invalid_argument("Algoritmo Prim no puede ser aplicado sobre grafos dirigidos");
+            throw std::invalid_argument("Algoritmo Prim no puede ser aplicado sobre grafos dirigidos o no conexos");
         }
     }
 
