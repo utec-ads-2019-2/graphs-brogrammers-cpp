@@ -146,7 +146,7 @@ protected:
         return true;
     }
 
-    static nodoListaAdyacencia* crearNodoListaAdyacencia (int origen, int destino, double peso) {
+    static nodoListaAdyacencia* crearNodoListaAdyacencia (int destino, double peso) {
         auto* nuevoNodo = new nodoListaAdyacencia(destino, peso);
         return nuevoNodo;
     }
@@ -217,7 +217,7 @@ public:
         if (peso == 0) {
             peso = obtenerPeso(origen, destino);
         }
-        nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(origen, destino, peso);
+        nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(destino, peso);
         if (!buscarVertice(origen)) {
             nodosGrafo[origen] = new listaAdyacencia();
             nodosGrafo[origen]->head = nullptr;
@@ -231,7 +231,7 @@ public:
         }
 
         if (!esDirigido) {
-            nuevoNodo = crearNodoListaAdyacencia(destino, origen, peso);
+            nuevoNodo = crearNodoListaAdyacencia(origen, peso);
             if (!buscarVertice(destino)) {
                 nodosGrafo[destino] = new listaAdyacencia();
                 nodosGrafo[destino]->head = nullptr;
