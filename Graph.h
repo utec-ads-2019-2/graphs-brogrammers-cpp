@@ -22,8 +22,8 @@ private:
     std::list <std::pair <int, double>> *adyacenciaPrim{};
 
     std::map <int, int> padreKruskal;
-    std::vector <std::pair <int, std::pair <int, int>>> nodosKruskal;
-    std::vector <std::pair <int, std::pair <int, int>>> arbolMinimaExpansion;
+    std::vector <std::pair <double, std::pair <int, int>>> nodosKruskal;
+    std::vector <std::pair <double, std::pair <int, int>>> arbolMinimaExpansion;
 
 protected:
     static double gradosARadianes(double grados) {

@@ -7,7 +7,7 @@ int main() {
     ParserAirports parserAirports("../demo.json");
     parserAirports.generarGrafo(grafoAeropuertos);
     grafoAeropuertos.printGraph();
-    grafoAeropuertos.algoritmoPrim();
+    grafoAeropuertos.algoritmoKruskal();
     /*grafoAeropuertos.agregarArista(0, 1, 1.1);
     grafoAeropuertos.agregarArista(0, 2, 6.6);
     grafoAeropuertos.agregarArista(1, 2, 4.4);
