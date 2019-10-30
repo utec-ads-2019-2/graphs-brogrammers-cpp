@@ -14,10 +14,11 @@
 using json = nlohmann::json;
 
 class ParserAirports{
-public:
+private:
     std::map <int, Airport*> aeropuertos;
     std::string json_file;
 
+protected:
     static std::vector <int> extraerDestinos(json &objeto) {
         std::vector <int> destinos;
         std::vector <std::string> destinos_vec = objeto.at("destinations");
@@ -34,7 +35,7 @@ public:
             int idOrigen = element.first;
             std::vector <int> destinos = element.second->destinos;
             for (auto dest : destinos) {
-                grafoAeropuertos.agregarAristaAeropuerto(idOrigen, dest);
+                grafoAeropuertos.agregarArista(idOrigen, dest, 0);
             }
         }
     }
@@ -63,6 +64,7 @@ public:
         }
     }
 
+public:
     ParserAirports()= default;;
 
     explicit ParserAirports(std::string _json_file) : json_file(std::move(_json_file)){
@@ -71,17 +73,6 @@ public:
 
     void generarGrafo(Graph &grafoAeropuertos) {
         crearAristas(grafoAeropuertos);
-    }
-
-    void print(){
-        for (auto element : aeropuertos) {
-            std::cout << "id Airport: " << element.first << '\n';
-            std::cout << "Destinations: " << '\n';
-            for(auto id_destinos : element.second->destinos){
-                std::cout << id_destinos << " ";
-            }
-            std::cout << '\n';
-        }
     }
 
     ~ParserAirports(){

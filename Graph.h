@@ -45,7 +45,6 @@ protected:
 
     void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
-        //std::cout << id_nodo << " ";
         auto* actual = nodosGrafo[id_nodo]->head;
         while (actual) {
             if(!map_nodes_visited[actual->idDestino]){
@@ -61,11 +60,9 @@ protected:
         for(auto const& element : nodosGrafo){
             map_nodes_visited[element.first] =  false;
         }
-        //std::cout << "Componentes conectados: \n";
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
                 executeDFS(element.first, map_nodes_visited);
-                //std::cout << "\n";
                 num_connected++;
             }
         }
@@ -120,8 +117,6 @@ protected:
                 actual = actual->next;
             }
         }
-        //std::cout << "Reverse Graph \n";
-        //rgraph.printGraph();
     }
 
     bool isStronglyConnected(){
@@ -184,7 +179,6 @@ protected:
     }
 
     void imprimirKruskal(Graph &grafoResultado) {
-        //std::cout << "Arista:   " << "   Peso" << std::endl;
         for (auto & it : arbolMinimaExpansion) {
             grafoResultado.agregarArista(it.second.first, it.second.second, it.first);
             //std::cout << it.second.first << "  -  " << it.second.second << "   :   " << std::setprecision(10) << it.first << std::endl;
@@ -219,35 +213,10 @@ public:
         data = &datos;
     }
 
-    void agregarAristaAeropuerto(int origen, int destino) {
-        nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(origen, destino, obtenerPeso(origen, destino));
-        if (!buscarVertice(origen)) {
-            nodosGrafo[origen] = new listaAdyacencia();
-            nodosGrafo[origen]->head = nullptr;
-            vertices++;
-        }
-        if (!buscarArista(origen, destino) && origen != destino) {
-            nuevoNodo->next = nodosGrafo[origen]->head;
-            nodosGrafo[origen]->head = nuevoNodo;
-            agregarVertice(destino);
-            aristas++;
-        }
-
-        if (!esDirigido) {
-            nuevoNodo = crearNodoListaAdyacencia(destino, origen, obtenerPeso(destino, origen));
-            if (!buscarVertice(destino)) {
-                nodosGrafo[destino] = new listaAdyacencia();
-                nodosGrafo[destino]->head = nullptr;
-                vertices++;
-            }
-            if (!buscarArista(destino, origen) && destino != origen) {
-                nuevoNodo->next = nodosGrafo[destino]->head;
-                nodosGrafo[destino]->head = nuevoNodo;
-            }
-        }
-    }
-
     void agregarArista(int origen, int destino, double peso) {
+        if (peso == 0) {
+            peso = obtenerPeso(origen, destino);
+        }
         nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(origen, destino, peso);
         if (!buscarVertice(origen)) {
             nodosGrafo[origen] = new listaAdyacencia();
@@ -425,6 +394,15 @@ public:
         } else {
             throw std::invalid_argument("Algoritmo Kruskal no puede ser aplicado sobre grafos dirigidos");
         }
+    }
+
+    void obtenerDestinosPorId(int idOrigen){
+        std::cout << "Aeropuerto de origen: " << '(' << idOrigen << ") " << data->find(idOrigen)->second->nombre << std::endl;
+        std::cout << "Destinos: " << std::endl;
+        for(auto id_destinos : data->find(idOrigen)->second->destinos){
+            std::cout << "- " << '(' << id_destinos << ") " << data->find(id_destinos)->second->nombre << " a " << obtenerPeso(idOrigen, id_destinos) << " Km" << std::endl;
+        }
+        std::cout << std::endl;
     }
 
     void printGraph() {
