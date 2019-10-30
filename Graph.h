@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <queue>
 #include <list>
+#include <iomanip>
 
 #include "Edge.h"
 #include "Airport.h"
@@ -45,7 +46,6 @@ protected:
     void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
         std::cout << id_nodo << " ";
-        //Recursividad para todos los vertices adyacenetes a este nodo
         auto* actual = nodosGrafo[id_nodo]->head;
         while (actual) {
             if(!map_nodes_visited[actual->idDestino]){
@@ -59,39 +59,38 @@ protected:
         std::map<int, bool> map_nodes_visited;
         int num_connected = 0;
         for(auto const& element : nodosGrafo){
-            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+            map_nodes_visited[element.first] =  false;
         }
         std::cout << "Componentes conectados: \n";
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
-                executeDFS(element.first, map_nodes_visited); // imprime todos los nodos alcanzables desde el nodo 'element.first'
+                executeDFS(element.first, map_nodes_visited);
                 std::cout << "\n";
                 num_connected++;
             }
         }
         std::cout << "Conexo: ";
-        return num_connected == 1;  // si hay 1 componente conectado return true, si hay 2 o mas componentes conectados return false
+        return num_connected == 1;
     }
 
     bool checkBipartito(){
-        std::map<int,int> map_nodos_color;      // '1' used for first color and '0' for second color
+        std::map<int,int> map_nodos_color;
         for(auto const& element : nodosGrafo){
-            map_nodos_color[element.first] =  -1;		// init all nodes in the map_color with 'No colored'
+            map_nodos_color[element.first] =  -1;
         }
         map_nodos_color[nodosGrafo.begin()->first] = 1;
 
         std::queue<int> q_nodes;
-        q_nodes.push(nodosGrafo.begin()->first); //Encolamos el primer id_node y go for BFS traversal
+        q_nodes.push(nodosGrafo.begin()->first);
 
         while(!q_nodes.empty()){
-            int u = q_nodes.front();    // sacamos de la cola
+            int u = q_nodes.front();
             q_nodes.pop();
             auto* actual = nodosGrafo[u]->head;
-            //Busca todos los nodos No coloreados adyacentes a 'u'
             while(actual){
-                if(map_nodos_color[actual->idDestino] == -1){   // si el destino No esta coloreado
+                if(map_nodos_color[actual->idDestino] == -1){
                     map_nodos_color[actual->idDestino] = 1 - map_nodos_color[u];
-                    q_nodes.push(actual->idDestino);    //ponemos en cola el nodo que acabamos de colorear
+                    q_nodes.push(actual->idDestino);
                 }
                 else if(map_nodos_color[actual->idDestino] == map_nodos_color[u]){
                     return false;
@@ -104,8 +103,6 @@ protected:
 
     void executeDFS_SC(int id_nodo, std::map<int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
-        //std::cout << id_nodo << " ";
-        //Recursividad para todos los vertices adyacentes a este nodo
         auto* actual = nodosGrafo[id_nodo]->head;
         while (actual) {
             if(!map_nodes_visited[actual->idDestino]){
@@ -119,7 +116,7 @@ protected:
         for(auto const& element : nodosGrafo){
             auto* actual = element.second->head;
             while(actual){
-                rgraph.agregarArista(actual->idDestino, element.first, 1);  // Generate Transpose Graph
+                rgraph.agregarArista(actual->idDestino, element.first, 1);
                 actual = actual->next;
             }
         }
@@ -130,26 +127,22 @@ protected:
     bool isStronglyConnected(){
         std::map<int, bool> map_nodes_visited;
         for(auto const& element : nodosGrafo){
-            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+            map_nodes_visited[element.first] =  false;
         }
-        executeDFS_SC(nodosGrafo.begin()->first, map_nodes_visited); // DFS traversal for first node
+        executeDFS_SC(nodosGrafo.begin()->first, map_nodes_visited);
 
-        for(auto const& element : nodosGrafo){          //If DFS did not visit all nodes return false
+        for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
                 std::cout << "Failed first DFS \n";
                 return false;
             }
         }
-        // Create reversed graph
         Graph reversedGraph;
         getTranspose(reversedGraph);
-        //Set everything to false again for second DFS in the reversed graph
         for(auto const& element : nodosGrafo){
-            map_nodes_visited[element.first] =  false;		// init the bool map with keys of nodos to false;
+            map_nodes_visited[element.first] =  false;
         }
-        //executeDFS_SC(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
         reversedGraph.executeDFS_SC(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
-        //Last: if DFS did not visit all nodes return false
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
                 return false;
@@ -190,10 +183,11 @@ protected:
         padreKruskal[nodoA] = padreKruskal[nodoB];
     }
 
-    void imprimirKruskal() {
-        std::cout << "Arista:   " << "   Peso" << std::endl;
+    void imprimirKruskal(Graph &grafoResultado) {
+        //std::cout << "Arista:   " << "   Peso" << std::endl;
         for (auto & it : arbolMinimaExpansion) {
-            std::cout << it.second.first << "  -  " << it.second.second << "   :   " << it.first << std::endl;
+            grafoResultado.agregarArista(it.second.first, it.second.second, it.first);
+            //std::cout << it.second.first << "  -  " << it.second.second << "   :   " << std::setprecision(10) << it.first << std::endl;
         }
     }
 
@@ -384,7 +378,7 @@ public:
         }
     }
 
-    void algoritmoPrim() {
+    void algoritmoPrim(Graph &grafoResultado) {
         if (!esDirigido) {
             int maximoId = nodosGrafo.rend()->first + 1;
             adyacenciaPrim = new std::list<std::pair <int, double>> [maximoId];
@@ -411,14 +405,15 @@ public:
                 }
             }
             for (auto & iterador : arrayPadre) {
-                std::cout << iterador.second << " - " << iterador.first << " - " << clave[iterador.first] << std::endl;
+                grafoResultado.agregarArista(iterador.second, iterador.first, clave[iterador.first]);
+                //std::cout << iterador.second << " - " << iterador.first << " - " << clave[iterador.first] << std::endl;
             }
         } else {
             throw std::invalid_argument("Algoritmo Prim no puede ser aplicado sobre grafos dirigidos");
         }
     }
 
-    void algoritmoKruskal() {
+    void algoritmoKruskal(Graph &grafoResultado) {
         if (!esDirigido) {
             int i, representanteA, representanteB;
             construirConjunto();
@@ -431,7 +426,7 @@ public:
                     unionSet(representanteA, representanteB);
                 }
             }
-            imprimirKruskal();
+            imprimirKruskal(grafoResultado);
         } else {
             throw std::invalid_argument("Algoritmo Kruskal no puede ser aplicado sobre grafos dirigidos");
         }
@@ -459,9 +454,12 @@ public:
 
     ~Graph() {
         for (auto element : nodosGrafo) {
+            element.second->head->killSelf();
+            element.second->head = nullptr;
+        }
+        for (auto element : nodosGrafo) {
             delete element.second;
         }
-
     }
 
 };

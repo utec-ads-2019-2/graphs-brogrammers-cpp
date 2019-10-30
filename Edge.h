@@ -13,7 +13,14 @@ public:
 
     nodoListaAdyacencia() = default;
     nodoListaAdyacencia(int destino, double peso) : idDestino{destino}, peso{peso} {}
-    ~nodoListaAdyacencia() = default;
+
+    void killSelf() {
+        if (this->next) {
+            this->next->killSelf();
+        }
+        delete this;
+    }
+
 };
 
 class listaAdyacencia {
