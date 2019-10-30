@@ -1,15 +1,12 @@
 #ifndef PROYECTO_AIRPORTS_GRAPH_H
 #define PROYECTO_AIRPORTS_GRAPH_H
 
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <algorithm>
 #include <queue>
 #include <list>
-
-#include <graphics.h>
-#include <cmath>
-#include <conio.h>
 
 #include "Edge.h"
 #include "Airport.h"
@@ -440,21 +437,6 @@ public:
         }
     }
 
-    void graficar() {
-        initwindow(800, 600);
-        int x, y;
-        line(0, 300, getmaxx(), 300);
-        line(400, 0, 400, getmaxy());
-        float pi = 3.1415;
-        for (int i = -360; i <= 360; ++i) {
-            x = (int)400+i;
-            y = (int)300-sin(i*pi/100)*25;
-            putpixel(x, y, WHITE);
-        }
-        getch();
-        closegraph();
-    }
-
     void printGraph() {
         for (auto & it : nodosGrafo) {
             nodoListaAdyacencia* pCrawl;
@@ -479,7 +461,7 @@ public:
         for (auto element : nodosGrafo) {
             delete element.second;
         }
-        delete adyacenciaPrim;
+
     }
 
 };
