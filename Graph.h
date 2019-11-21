@@ -18,7 +18,6 @@ private:
     int aristas;
     bool esDirigido = false;
     std::map <int, listaAdyacencia*> nodosGrafo;
-    std::map <int, Airport*> *data = nullptr;
 
     std::list <std::pair <int, double>> *adyacenciaPrim{};
 
@@ -27,22 +26,6 @@ private:
     std::vector <std::pair <double, std::pair <int, int>>> arbolMinimaExpansion;
 
 protected:
-    static double gradosARadianes(double grados) {
-        return grados * (M_PI / 180);
-    }
-
-    double obtenerPeso(int origen, int destino) {
-        double radioTierra = 6371;
-        Airport *airportOrigen = data->find(origen)->second;
-        Airport *airportDestino = data->find(destino)->second;
-        double distanciaLatitud = gradosARadianes(airportDestino->latitud - airportOrigen->latitud);
-        double distanciaLongitud = gradosARadianes(airportDestino->longitud - airportOrigen->longitud);
-        double a = sin(distanciaLatitud / 2) * sin(distanciaLatitud / 2) + cos(gradosARadianes(airportOrigen->latitud)) * cos(gradosARadianes(airportDestino->latitud)) * sin(distanciaLongitud / 2) * sin(distanciaLongitud / 2);
-        double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-        double distancia = radioTierra * c;
-        return distancia;
-    }
-
     void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
         auto* actual = nodosGrafo[id_nodo]->head;
@@ -209,14 +192,7 @@ public:
         return false;
     }
 
-    void cargarData(std::map <int, Airport*>& datos) {
-        data = &datos;
-    }
-
     void agregarArista(int origen, int destino, double peso) {
-        if (peso == 0) {
-            peso = obtenerPeso(origen, destino);
-        }
         nodoListaAdyacencia* nuevoNodo = crearNodoListaAdyacencia(destino, peso);
         if (!buscarVertice(origen)) {
             nodosGrafo[origen] = new listaAdyacencia();
@@ -311,13 +287,8 @@ public:
     }
 
     bool esDenso(double cotaDensidad) {
-        if (esDirigido) {
-            double densidad = ((double)(aristas))/((double)(vertices)*((double)(vertices)-1));
-            return densidad >= cotaDensidad;
-        } else {
-            double densidad = (2*(double)(aristas))/((double)(vertices)*((double)(vertices)-1));
-            return densidad >= cotaDensidad;
-        }
+        double densidad = ((double)(aristas))/((double)(vertices)*((double)(vertices)-1));
+        return (esDirigido) ? (densidad >= cotaDensidad) : (2 * densidad >= cotaDensidad);
     }
 
     bool esConexo() {
@@ -396,16 +367,7 @@ public:
         }
     }
 
-    void obtenerDestinosPorId(int idOrigen){
-        std::cout << "Aeropuerto de origen: " << '(' << idOrigen << ") " << data->find(idOrigen)->second->nombre << std::endl;
-        std::cout << "Destinos: " << std::endl;
-        for(auto id_destinos : data->find(idOrigen)->second->destinos){
-            std::cout << "- " << '(' << id_destinos << ") " << data->find(id_destinos)->second->nombre << " a " << obtenerPeso(idOrigen, id_destinos) << " Km" << std::endl;
-        }
-        std::cout << std::endl;
-    }
-
-    void printGraph() {
+    void imprimir() {
         for (auto & it : nodosGrafo) {
             nodoListaAdyacencia* pCrawl;
             auto iterator = nodosGrafo.find(it.first);
