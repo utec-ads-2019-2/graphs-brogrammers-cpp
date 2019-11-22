@@ -45,16 +45,6 @@ protected:
         return distancia;
     }
 
-    void crearAristas(Graph &grafoAeropuertos) {
-        for (auto element : aeropuertos) {
-            int idOrigen = element.first;
-            std::vector <int> destinos = element.second->destinos;
-            for (auto dest : destinos) {
-                grafoAeropuertos.agregarArista(idOrigen, dest, obtenerPeso(idOrigen, dest));
-            }
-        }
-    }
-
     void readFile(){
         std::ifstream i(json_file);
         json j;
@@ -86,8 +76,16 @@ public:
         readFile();
     }
 
-    void generarGrafo(Graph &grafoAeropuertos) {
-        crearAristas(grafoAeropuertos);
+    Graph generarGrafo() {
+        Graph grafoAeropuertos;
+        for (auto element : aeropuertos) {
+            int idOrigen = element.first;
+            std::vector <int> destinos = element.second->destinos;
+            for (auto dest : destinos) {
+                grafoAeropuertos.agregarArista(idOrigen, dest, obtenerPeso(idOrigen, dest));
+            }
+        }
+        return grafoAeropuertos;
     }
 
     ~ParserAirports(){

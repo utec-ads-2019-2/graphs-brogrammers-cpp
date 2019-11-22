@@ -10,7 +10,6 @@
 #include <iomanip>
 
 #include "Edge.h"
-#include "Airport.h"
 
 class Graph {
 private:
@@ -49,7 +48,6 @@ protected:
                 num_connected++;
             }
         }
-        std::cout << "Conexo: ";
         return num_connected == 1;
     }
 
@@ -179,7 +177,40 @@ protected:
     }
 
 public:
-    explicit Graph () : vertices{0}, aristas{0} {}
+    Graph () : vertices{0}, aristas{0} {}
+
+    Graph(const Graph &other) : vertices{other.vertices}, aristas{other.aristas}, esDirigido{other.esDirigido} {
+        for (auto & it : other.nodosGrafo) {
+            nodoListaAdyacencia* pCrawl;
+            auto iterator = other.nodosGrafo.find(it.first);
+            if (iterator != other.nodosGrafo.end()) {
+                pCrawl = other.nodosGrafo.find(it.first)->second->head;
+            } else {
+                pCrawl = nullptr;
+            }
+            while (pCrawl) {
+                agregarArista(it.first, pCrawl->idDestino, pCrawl->peso);
+                pCrawl = pCrawl->next;
+            }
+        }
+    }
+
+    Graph &operator=(const Graph &other) {
+        for (auto & it : other.nodosGrafo) {
+            nodoListaAdyacencia* pCrawl;
+            auto iterator = other.nodosGrafo.find(it.first);
+            if (iterator != other.nodosGrafo.end()) {
+                pCrawl = other.nodosGrafo.find(it.first)->second->head;
+            } else {
+                pCrawl = nullptr;
+            }
+            while (pCrawl) {
+                agregarArista(it.first, pCrawl->idDestino, pCrawl->peso);
+                pCrawl = pCrawl->next;
+            }
+        }
+        return (*this);
+    }
 
     bool buscarArista(int origen, int destino) {
         auto* actual = nodosGrafo[origen]->head;
@@ -307,13 +338,13 @@ public:
     bool esFuertementeConexo(){
         if(esDirigido){
             return isStronglyConnected();
-        }
-        else{
+        } else{
             throw std::invalid_argument("Propiedad fuertemente conexo solo valido para grafos dirigidos");
         }
     }
 
-    void algoritmoPrim(Graph &grafoResultado) {
+    Graph algoritmoPrim() {
+        Graph grafoResultado;
         if (!esDirigido && this->esConexo()) {
             int maximoId = nodosGrafo.rend()->first + 1;
             adyacenciaPrim = new std::list<std::pair <int, double>> [maximoId];
@@ -346,9 +377,11 @@ public:
         } else {
             throw std::invalid_argument("Algoritmo Prim no puede ser aplicado sobre grafos dirigidos o no conexos");
         }
+        return grafoResultado;
     }
 
-    void algoritmoKruskal(Graph &grafoResultado) {
+    Graph algoritmoKruskal() {
+        Graph grafoResultado;
         if (!esDirigido) {
             int i, representanteA, representanteB;
             construirConjunto();
@@ -365,6 +398,7 @@ public:
         } else {
             throw std::invalid_argument("Algoritmo Kruskal no puede ser aplicado sobre grafos dirigidos");
         }
+        return grafoResultado;
     }
 
     void imprimir() {

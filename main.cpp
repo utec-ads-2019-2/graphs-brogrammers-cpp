@@ -3,10 +3,13 @@
 
 int main() {
 
-    Graph grafoAeropuertos;
     ParserAirports parserAirports("../demo.json");
-    parserAirports.generarGrafo(grafoAeropuertos);
+    Graph grafoAeropuertos = parserAirports.generarGrafo();
     grafoAeropuertos.imprimir();
+    Graph grafoPrim = grafoAeropuertos.algoritmoPrim();
+    grafoPrim.imprimir();
+    Graph grafoKruskal = grafoAeropuertos.algoritmoKruskal();
+    grafoKruskal.imprimir();
 
     return 0;
 
