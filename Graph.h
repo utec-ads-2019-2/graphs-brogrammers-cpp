@@ -8,6 +8,7 @@
 #include <queue>
 #include <list>
 #include <iomanip>
+#include <vector>
 
 #include "Edge.h"
 
@@ -15,7 +16,7 @@ class Graph {
 private:
     int vertices;
     int aristas;
-    bool esDirigido = false;
+    bool esDirigido;
     std::map <int, listaAdyacencia*> nodosGrafo;
 
     std::list <std::pair <int, double>> *adyacenciaPrim{};
@@ -113,7 +114,7 @@ protected:
                 return false;
             }
         }
-        Graph reversedGraph;
+        Graph reversedGraph(this->esDirigido);
         getTranspose(reversedGraph);
         for(auto const& element : nodosGrafo){
             map_nodes_visited[element.first] =  false;
@@ -176,8 +177,19 @@ protected:
         }
     }
 
+    double obtenerPeso(int origen, int destino) {
+        auto* actual = nodosGrafo[origen]->head;
+        while (actual) {
+            if (actual->idDestino == destino) {
+                return actual->peso;
+            }
+            actual = actual->next;
+        }
+        return 0;
+    }
+
 public:
-    Graph () : vertices{0}, aristas{0} {}
+    Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
 
     Graph(const Graph &other) : vertices{other.vertices}, aristas{other.aristas}, esDirigido{other.esDirigido} {
         for (auto & it : other.nodosGrafo) {
@@ -213,6 +225,10 @@ public:
     }
 
     bool buscarArista(int origen, int destino) {
+        auto it = nodosGrafo.find(origen);
+        if (it == nodosGrafo.end()) {
+            return false;
+        }
         auto* actual = nodosGrafo[origen]->head;
         while (actual) {
             if (actual->idDestino == destino) {
@@ -344,7 +360,7 @@ public:
     }
 
     Graph algoritmoPrim() {
-        Graph grafoResultado;
+        Graph grafoResultado(this->esDirigido);
         if (!esDirigido && this->esConexo()) {
             int maximoId = nodosGrafo.rend()->first + 1;
             adyacenciaPrim = new std::list<std::pair <int, double>> [maximoId];
@@ -381,7 +397,7 @@ public:
     }
 
     Graph algoritmoKruskal() {
-        Graph grafoResultado;
+        Graph grafoResultado(this->esDirigido);
         if (!esDirigido) {
             int i, representanteA, representanteB;
             construirConjunto();
@@ -401,6 +417,30 @@ public:
         return grafoResultado;
     }
 
+    std::vector <std::vector <double>> algoritmoFloydWarshal() {
+        int mayorID = (--nodosGrafo.end())->first;
+        std::vector <std::vector <double>> resultado(mayorID+1);
+        for (int i = 0; i <= mayorID; ++i) {
+            resultado[i].resize(mayorID+1);
+        }
+        for (int i = 0; i <= mayorID; ++i) {
+            for (int j = 0; j <= mayorID; ++j) {
+                resultado[i][j] = (buscarArista(i,j)) ? obtenerPeso(i,j) : INT_MAX;
+                resultado[i][j] = (i == j) ? 0 : resultado[i][j];
+            }
+        }
+        for (int k = 0; k <= mayorID; ++k) {
+            for (int i = 0; i <= mayorID; ++i) {
+                for (int j = 0; j <= mayorID; ++j) {
+                    if (resultado[i][k] + resultado[k][j] < resultado[i][j]) {
+                        resultado[i][j] = resultado[i][k] + resultado[k][j];
+                    }
+                }
+            }
+        }
+        return resultado;
+    }
+
     void imprimir() {
         for (auto & it : nodosGrafo) {
             nodoListaAdyacencia* pCrawl;
@@ -418,13 +458,15 @@ public:
                 pCrawl = pCrawl->next;
             }
         }
-        std::cout << "\nVertices: " << vertices << "\nAristas: " << aristas << std::endl;
+        std::cout << "\nVertices: " << vertices << "\nAristas: " << aristas << std::endl << std::endl;
     }
 
     ~Graph() {
         for (auto element : nodosGrafo) {
-            element.second->head->killSelf();
-            element.second->head = nullptr;
+            if (element.second->head) {
+                element.second->head->killSelf();
+                element.second->head = nullptr;
+            }
         }
         for (auto element : nodosGrafo) {
             delete element.second;

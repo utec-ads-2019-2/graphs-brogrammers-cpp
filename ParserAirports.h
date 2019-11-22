@@ -77,7 +77,7 @@ public:
     }
 
     Graph generarGrafo() {
-        Graph grafoAeropuertos;
+        Graph grafoAeropuertos(false);
         for (auto element : aeropuertos) {
             int idOrigen = element.first;
             std::vector <int> destinos = element.second->destinos;
