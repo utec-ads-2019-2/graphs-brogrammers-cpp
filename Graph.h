@@ -82,17 +82,6 @@ protected:
         return true;
     }
 
-    void executeDFS_SC(int id_nodo, std::map<int, bool> &map_nodes_visited){
-        map_nodes_visited[id_nodo] = true;
-        auto* actual = nodosGrafo[id_nodo]->head;
-        while (actual) {
-            if(!map_nodes_visited[actual->idDestino]){
-                executeDFS_SC(actual->idDestino, map_nodes_visited);
-            }
-            actual = actual->next;
-        }
-    }
-
     void getTranspose(Graph &rgraph){
         for(auto const& element : nodosGrafo){
             auto* actual = element.second->head;
@@ -108,7 +97,7 @@ protected:
         for(auto const& element : nodosGrafo){
             map_nodes_visited[element.first] =  false;
         }
-        executeDFS_SC(nodosGrafo.begin()->first, map_nodes_visited);
+        executeDFS(nodosGrafo.begin()->first, map_nodes_visited);
 
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
@@ -121,7 +110,7 @@ protected:
         for(auto const& element : nodosGrafo){
             map_nodes_visited[element.first] =  false;
         }
-        reversedGraph.executeDFS_SC(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
+        reversedGraph.executeDFS(reversedGraph.nodosGrafo.begin()->first, map_nodes_visited);
         for(auto const& element : nodosGrafo){
             if(!map_nodes_visited[element.first]){
                 return false;
