@@ -16,6 +16,18 @@ void imprimirMatriz(std::vector <std::vector <double>> matrizFloyd) {
     }
 }
 
+void imprimirVector(std::vector <std::pair <int, double>> &resultado) {
+    std::cout << "Vertice\tDistancia desde punto origen" << std::endl;
+    for (auto &it : resultado) {
+        std::cout << it.first << '\t';
+        if (it.second == INT_MAX) {
+            std::cout << "INF" << std::endl;
+        } else {
+            std::cout << it.second << std::endl;
+        }
+    }
+}
+
 void printVector(std::vector<int>& result){
     for(auto const& element : result){
         std::cout << element << " ";

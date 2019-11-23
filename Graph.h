@@ -25,6 +25,8 @@ private:
     std::vector <std::pair <double, std::pair <int, int>>> nodosKruskal;
     std::vector <std::pair <double, std::pair <int, int>>> arbolMinimaExpansion;
 
+    std::vector <std::pair<int, std::pair<int, double>>> aristasGrafo;
+
 protected:
     void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
         map_nodes_visited[id_nodo] = true;
@@ -189,7 +191,7 @@ protected:
     }
 
 public:
-    Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
+    explicit Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
 
     Graph(const Graph &other) : vertices{other.vertices}, aristas{other.aristas}, esDirigido{other.esDirigido} {
         for (auto & it : other.nodosGrafo) {
@@ -250,9 +252,9 @@ public:
             nuevoNodo->next = nodosGrafo[origen]->head;
             nodosGrafo[origen]->head = nuevoNodo;
             agregarVertice(destino);
+            aristasGrafo.emplace_back(origen, std::make_pair(destino, peso));
             aristas++;
         }
-
         if (!esDirigido) {
             nuevoNodo = crearNodoListaAdyacencia(origen, peso);
             if (!buscarVertice(destino)) {
@@ -418,6 +420,9 @@ public:
     }
 
     std::vector <std::vector <double>> algoritmoFloydWarshal() {
+        if (!esDirigido) {
+            throw std::invalid_argument("Algoritmo Floyd Warshal solo puede ser aplicado sobre grafos dirigidos");
+        }
         int mayorID = (--nodosGrafo.end())->first;
         std::vector <std::vector <double>> resultado(mayorID+1);
         for (int i = 0; i <= mayorID; ++i) {
@@ -463,19 +468,55 @@ public:
         }
     }
 
-    std::vector<int> BFS(){
-        std::map<int,bool> map_nodes_visited;
+    std::vector<int> BFS() {
+        std::map<int, bool> map_nodes_visited;
         std::vector<int> bfs_result;
-        for(auto const& element : nodosGrafo){
-            map_nodes_visited[element.first] =  false;
+        for (auto const &element : nodosGrafo) {
+            map_nodes_visited[element.first] = false;
         }
-        for(auto const& vertex : map_nodes_visited){
-            if(!vertex.second){     // si no ha sido visitado
+        for (auto const &vertex : map_nodes_visited) {
+            if (!vertex.second) {     // si no ha sido visitado
                 //std::cout << "check: " << vertex.first << '\n';
                 BFSUtil(vertex.first, map_nodes_visited, bfs_result);
             }
         }
         return bfs_result;
+    }
+
+    std::vector <std::pair <int, double>> algoritmoBellmanFord(int idOrigen) {
+        if (!esDirigido) {
+            throw std::invalid_argument("Algoritmo Bellman-Ford solo puede ser aplicado sobre grafos dirigidos");
+        }
+        int mayorID = (--nodosGrafo.end())->first;
+        std::map <int, double> pesosTemporales;
+        for (auto &it : nodosGrafo) {
+            pesosTemporales.insert({it.first,INT_MAX});
+        }
+        pesosTemporales[idOrigen] = 0;
+        for (int i = 1; i <= mayorID; ++i) {
+            for (auto &it : aristasGrafo) {
+                int origen = it.first;
+                int destino = it.second.first;
+                double peso = it.second.second;
+                if (pesosTemporales[origen] != INT_MAX && pesosTemporales[origen] + peso < pesosTemporales[destino]) {
+                    pesosTemporales[destino] = pesosTemporales[origen] + peso;
+                }
+            }
+        }
+        for (auto &it : aristasGrafo) {
+            int origen = it.first;
+            int destino = it.second.first;
+            double peso = it.second.second;
+            if (pesosTemporales[origen] != INT_MAX && pesosTemporales[origen] + peso < pesosTemporales[destino]) {
+                throw std::invalid_argument("El grafo contiene un ciclo de peso negativo");
+            }
+        }
+        std::vector <std::pair <int, double>> resultado;
+        resultado.reserve(pesosTemporales.size());
+        for (auto &it : pesosTemporales) {
+            resultado.emplace_back(it.first,it.second);
+        }
+        return resultado;
     }
 
     void imprimir() {
