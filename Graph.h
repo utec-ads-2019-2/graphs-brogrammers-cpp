@@ -446,20 +446,23 @@ public:
         return resultado;
     }
 
-    std::vector <double> algoritmoBellmanFord(int idOrigen) {
+    std::vector <std::pair <int, double>> algoritmoBellmanFord(int idOrigen) {
         if (!esDirigido) {
             throw std::invalid_argument("Algoritmo Bellman-Ford solo puede ser aplicado sobre grafos dirigidos");
         }
         int mayorID = (--nodosGrafo.end())->first;
-        std::vector <double> resultado(mayorID + 1, INT_MAX);
-        resultado[idOrigen] = 0;
+        std::map <int, double> pesosTemporales;
+        for (auto &it : nodosGrafo) {
+            pesosTemporales.insert({it.first,INT_MAX});
+        }
+        pesosTemporales[idOrigen] = 0;
         for (int i = 1; i <= mayorID; ++i) {
             for (auto &it : aristasGrafo) {
                 int origen = it.first;
                 int destino = it.second.first;
                 double peso = it.second.second;
-                if (resultado[origen] != INT_MAX && resultado[origen] + peso < resultado[destino]) {
-                    resultado[destino] = resultado[origen] + peso;
+                if (pesosTemporales[origen] != INT_MAX && pesosTemporales[origen] + peso < pesosTemporales[destino]) {
+                    pesosTemporales[destino] = pesosTemporales[origen] + peso;
                 }
             }
         }
@@ -467,9 +470,13 @@ public:
             int origen = it.first;
             int destino = it.second.first;
             double peso = it.second.second;
-            if (resultado[origen] != INT_MAX && resultado[origen] + peso < resultado[destino]) {
+            if (pesosTemporales[origen] != INT_MAX && pesosTemporales[origen] + peso < pesosTemporales[destino]) {
                 throw std::invalid_argument("El grafo contiene un ciclo de peso negativo");
             }
+        }
+        std::vector <std::pair <int, double>> resultado;
+        for (auto &it : pesosTemporales) {
+            resultado.emplace_back(it.first,it.second);
         }
         return resultado;
     }

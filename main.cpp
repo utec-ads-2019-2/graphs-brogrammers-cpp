@@ -14,10 +14,15 @@ void imprimirMatriz(std::vector <std::vector <double>> &matrizFloyd) {
     }
 }
 
-void imprimirVector(std::vector <double> &resultado) {
+void imprimirVector(std::vector <std::pair <int, double>> &resultado) {
     std::cout << "Vertice\tDistancia desde punto origen" << std::endl;
-    for (unsigned int i = 0; i < resultado.size(); ++i) {
-        std::cout << i << '\t' << resultado[i] << std::endl;
+    for (auto &it : resultado) {
+        std::cout << it.first << '\t';
+        if (it.second == INT_MAX) {
+            std::cout << "INF" << std::endl;
+        } else {
+            std::cout << it.second << std::endl;
+        }
     }
 }
 
@@ -35,7 +40,7 @@ int main() {
 
     grafo.imprimir();
 
-    std::vector <double> bellmanFord = grafo.algoritmoBellmanFord(0);
+    std::vector <std::pair <int, double>> bellmanFord = grafo.algoritmoBellmanFord(1);
     imprimirVector(bellmanFord);
 
     return 0;
