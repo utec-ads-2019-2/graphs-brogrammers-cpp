@@ -475,6 +475,7 @@ public:
             }
         }
         std::vector <std::pair <int, double>> resultado;
+        resultado.reserve(pesosTemporales.size());
         for (auto &it : pesosTemporales) {
             resultado.emplace_back(it.first,it.second);
         }
