@@ -441,6 +441,43 @@ public:
         return resultado;
     }
 
+    void BFSUtil(int id_vertex, std::map<int,bool> &map_visited_vertex, std::vector<int> &bfs_result){
+        std::list<int> queue;
+        map_visited_vertex[id_vertex] = true;
+        queue.push_back(id_vertex);
+
+        while(!queue.empty()){
+            id_vertex = queue.front();
+            bfs_result.push_back(id_vertex);
+            //std::cout << id_vertex << " ";
+            queue.pop_front();
+            // obten todos los vertices adyacentes del vertice que salió de la cola
+            auto *actual = nodosGrafo[id_vertex]->head;
+            while(actual){
+                if(!map_visited_vertex[actual->idDestino]){     // si no ha sido vistado
+                    map_visited_vertex[actual->idDestino] = true;
+                    queue.push_back(actual->idDestino);
+                }
+                actual = actual->next;
+            }
+        }
+    }
+
+    std::vector<int> BFS(){
+        std::map<int,bool> map_nodes_visited;
+        std::vector<int> bfs_result;
+        for(auto const& element : nodosGrafo){
+            map_nodes_visited[element.first] =  false;
+        }
+        for(auto const& vertex : map_nodes_visited){
+            if(!vertex.second){     // si no ha sido visitado
+                //std::cout << "check: " << vertex.first << '\n';
+                BFSUtil(vertex.first, map_nodes_visited, bfs_result);
+            }
+        }
+        return bfs_result;
+    }
+
     void imprimir() {
         for (auto & it : nodosGrafo) {
             nodoListaAdyacencia* pCrawl;
