@@ -190,6 +190,28 @@ protected:
         return 0;
     }
 
+    void BFSUtil(int id_vertex, std::map<int,bool> &map_visited_vertex, std::vector<int> &bfs_result){
+        std::list<int> queue;
+        map_visited_vertex[id_vertex] = true;
+        queue.push_back(id_vertex);
+
+        while(!queue.empty()){
+            id_vertex = queue.front();
+            bfs_result.push_back(id_vertex);
+            //std::cout << id_vertex << " ";
+            queue.pop_front();
+            // obten todos los vertices adyacentes del vertice que salió de la cola
+            auto *actual = nodosGrafo[id_vertex]->head;
+            while(actual){
+                if(!map_visited_vertex[actual->idDestino]){     // si no ha sido vistado
+                    map_visited_vertex[actual->idDestino] = true;
+                    queue.push_back(actual->idDestino);
+                }
+                actual = actual->next;
+            }
+        }
+    }
+
 public:
     explicit Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
 
@@ -444,28 +466,6 @@ public:
             }
         }
         return resultado;
-    }
-
-    void BFSUtil(int id_vertex, std::map<int,bool> &map_visited_vertex, std::vector<int> &bfs_result){
-        std::list<int> queue;
-        map_visited_vertex[id_vertex] = true;
-        queue.push_back(id_vertex);
-
-        while(!queue.empty()){
-            id_vertex = queue.front();
-            bfs_result.push_back(id_vertex);
-            //std::cout << id_vertex << " ";
-            queue.pop_front();
-            // obten todos los vertices adyacentes del vertice que salió de la cola
-            auto *actual = nodosGrafo[id_vertex]->head;
-            while(actual){
-                if(!map_visited_vertex[actual->idDestino]){     // si no ha sido vistado
-                    map_visited_vertex[actual->idDestino] = true;
-                    queue.push_back(actual->idDestino);
-                }
-                actual = actual->next;
-            }
-        }
     }
 
     std::vector<int> BFS() {
