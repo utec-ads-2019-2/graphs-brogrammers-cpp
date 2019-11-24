@@ -28,12 +28,15 @@ private:
     std::vector <std::pair<int, std::pair<int, double>>> aristasGrafo;
 
 protected:
-    void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited){
+    void executeDFS(int id_nodo, std::map <int, bool> &map_nodes_visited, std::vector<int> *dfs_result = nullptr){
         map_nodes_visited[id_nodo] = true;
+        if(dfs_result){
+            dfs_result->push_back(id_nodo);
+        }
         auto* actual = nodosGrafo[id_nodo]->head;
         while (actual) {
             if(!map_nodes_visited[actual->idDestino]){
-                executeDFS(actual->idDestino, map_nodes_visited);
+                executeDFS(actual->idDestino, map_nodes_visited, dfs_result);   // recursive call, traverse until is possible
             }
             actual = actual->next;
         }
@@ -470,6 +473,21 @@ public:
             }
         }
         return bfs_result;
+    }
+
+    std::vector<int> DFS(){
+        std::map<int, bool> map_nodes_visited;
+        std::vector<int> dfs_result;
+        for(auto const& element : nodosGrafo){
+            map_nodes_visited[element.first] =  false;
+        }
+        for(auto const& element : nodosGrafo){      // hacemos DFS en cada vertice del grafo
+            if(!map_nodes_visited[element.first]){  // si no ha sido visitado
+                std::cout << "Profundidad con: " << element.first << '\n';
+                executeDFS(element.first, map_nodes_visited, &dfs_result);
+            }
+        }
+        return dfs_result;
     }
 
     std::vector <std::pair <int, double>> algoritmoBellmanFord(int idOrigen) {

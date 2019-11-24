@@ -12,17 +12,19 @@ int main() {
     grafoAeropuertos.agregarArista(2,0,1);
     grafoAeropuertos.agregarArista(2,3,1);
 
-
+    /*
     grafoAeropuertos.agregarArista(0,4,1);
     grafoAeropuertos.agregarArista(1,2,1);
     grafoAeropuertos.agregarArista(1,3,1);
     grafoAeropuertos.agregarArista(1,4,1);
     grafoAeropuertos.agregarArista(2,3,1);
     grafoAeropuertos.agregarArista(3,4,1);
-
+    */
     grafoAeropuertos.imprimir();
-    auto bfs_result = grafoAeropuertos.BFS();
-    printVector(bfs_result);
+    //auto bfs_result = grafoAeropuertos.BFS();
+    auto dfs_result = grafoAeropuertos.DFS();
+    //printVector(bfs_result);
+    printVector(dfs_result);
     //std::vector <std::vector <double>> matrizFloyd = grafoAeropuertos.algoritmoFloydWarshal();
     //imprimirMatriz(matrizFloyd);
 
