@@ -483,7 +483,7 @@ public:
         }
         for(auto const& element : nodosGrafo){      // hacemos DFS en cada vertice del grafo
             if(!map_nodes_visited[element.first]){  // si no ha sido visitado
-                std::cout << "Profundidad con: " << element.first << '\n';
+                //std::cout << "Profundidad con: " << element.first << '\n';
                 executeDFS(element.first, map_nodes_visited, &dfs_result);
             }
         }
