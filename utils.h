@@ -36,4 +36,16 @@ void printVector(std::vector<int>& result){
     std::cout << '\n';
 }
 
+void printDijkstra(std::map<int, int>& dist){
+    printf("Vertex \t Distance from Source\n");
+    for(auto const& element : dist){
+        if(dist[element.first] == INT_MAX){
+            printf("%d \t\t %s\n", element.first, "INF");
+        }
+        else{
+            printf("%d \t\t %d\n", element.first, dist[element.first]);
+        }
+    }
+}
+
 #endif //GRAPHS_BROGRAMMERS_CPP_UTILS_H

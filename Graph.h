@@ -204,6 +204,18 @@ protected:
         }
     }
 
+    int minDistance(std::map<int, int>& dist, std::map<int, bool>& sptSet){
+        int min = INT_MAX;
+        int min_vertex = 0;
+        for(auto const& element : nodosGrafo){
+            if(!sptSet[element.first] && dist[element.first] <= min){
+                min = dist[element.first];
+                min_vertex = element.first;
+            }
+        }
+        return min_vertex;
+    }
+
 public:
     explicit Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
 
@@ -488,6 +500,36 @@ public:
             }
         }
         return dfs_result;
+    }
+
+    std::map<int, int> dijkstra(int src){
+        std::map<int, int> dist_result;         // result_dist will hold the shortest distance from src to earch member in the map
+        std::map<int, bool> sptSet;
+
+        // Init all distances as INF and sptSet as false
+        for(auto const& element : nodosGrafo){
+            dist_result[element.first] = INT_MAX;
+            sptSet[element.first] =  false;
+        }
+        // Distance of source vertex from itself is 0
+        dist_result[src] = 0;
+
+        //Find the shortest path for all vertices
+        for(auto const& element: nodosGrafo){
+            // select the minimum distance vertex from the set of vertices not yet checked.
+            int u = minDistance(dist_result, sptSet);
+            // Mark the selected vertex as processed
+            sptSet[u] = true;
+            // Update 'distance value' de los vertices adyacentes al vertice seleccionado 'u'
+            auto* actual = nodosGrafo[u]->head;
+            while(actual){
+                if(!sptSet[actual->idDestino] && dist_result[u] != INT_MAX && dist_result[u] + actual->peso < dist_result[actual->idDestino]){
+                    dist_result[actual->idDestino] = dist_result[u] + actual->peso;
+                }
+                actual = actual->next;
+            }
+        }
+        return dist_result;
     }
 
     std::vector <std::pair <int, double>> algoritmoBellmanFord(int idOrigen) {
