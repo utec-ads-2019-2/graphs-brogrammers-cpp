@@ -18,6 +18,7 @@ private:
     int aristas;
     bool esDirigido;
     std::map <int, listaAdyacencia*> nodosGrafo;
+    std::map <int, Airport*> *data = nullptr;
 
     std::list <std::pair <int, double>> *adyacenciaPrim{};
 
@@ -219,7 +220,7 @@ protected:
 public:
     explicit Graph (bool esDirigido) : vertices{0}, aristas{0}, esDirigido{esDirigido} {}
 
-    Graph(const Graph &other) : vertices{other.vertices}, aristas{other.aristas}, esDirigido{other.esDirigido} {
+    Graph(const Graph &other) : vertices{other.vertices}, aristas{other.aristas}, esDirigido{other.esDirigido}, data{other.data} {
         for (auto & it : other.nodosGrafo) {
             nodoListaAdyacencia* pCrawl;
             auto iterator = other.nodosGrafo.find(it.first);
@@ -250,6 +251,10 @@ public:
             }
         }
         return (*this);
+    }
+
+    void cargarData(std::map <int, Airport*>& datos) {
+        data = &datos;
     }
 
     bool buscarArista(int origen, int destino) {
@@ -445,33 +450,6 @@ public:
         return grafoResultado;
     }
 
-    std::vector <std::vector <double>> algoritmoFloydWarshal() {
-        if (!esDirigido) {
-            throw std::invalid_argument("Algoritmo Floyd Warshal solo puede ser aplicado sobre grafos dirigidos");
-        }
-        int mayorID = (--nodosGrafo.end())->first;
-        std::vector <std::vector <double>> resultado(mayorID+1);
-        for (int i = 0; i <= mayorID; ++i) {
-            resultado[i].resize(mayorID+1);
-        }
-        for (int i = 0; i <= mayorID; ++i) {
-            for (int j = 0; j <= mayorID; ++j) {
-                resultado[i][j] = (buscarArista(i,j)) ? obtenerPeso(i,j) : INT_MAX;
-                resultado[i][j] = (i == j) ? 0 : resultado[i][j];
-            }
-        }
-        for (int k = 0; k <= mayorID; ++k) {
-            for (int i = 0; i <= mayorID; ++i) {
-                for (int j = 0; j <= mayorID; ++j) {
-                    if (resultado[i][k] + resultado[k][j] < resultado[i][j]) {
-                        resultado[i][j] = resultado[i][k] + resultado[k][j];
-                    }
-                }
-            }
-        }
-        return resultado;
-    }
-
     std::vector<int> BFS() {
         std::map<int, bool> map_nodes_visited;
         std::vector<int> bfs_result;
@@ -502,7 +480,7 @@ public:
         return dfs_result;
     }
 
-    std::map<int, int> dijkstra(int src){
+    std::map<int, int> algoritmoDijkstra(int src){
         std::map<int, int> dist_result;         // result_dist will hold the shortest distance from src to earch member in the map
         std::map<int, bool> sptSet;
 
@@ -530,6 +508,46 @@ public:
             }
         }
         return dist_result;
+    }
+
+    Graph algoritmoAAsterisco(int origen, int destino) {
+        if (!buscarVertice(origen) || !buscarVertice(destino)) {
+            throw std::invalid_argument("Alguno de los vertices no existe");
+        }
+        if ((this->esDirigido) ? this->esFuertementeConexo() : this->esConexo()) {
+            throw std::invalid_argument("Los nodos del grafo no se encuentran conectados");
+        }
+        Graph resultado(this->esDirigido);
+        nodoListaAdyacencia* actual = nodosGrafo[origen]->head;
+        //while (actual)
+        return resultado;
+    }
+
+    std::vector <std::vector <double>> algoritmoFloydWarshal() {
+        if (!esDirigido) {
+            throw std::invalid_argument("Algoritmo Floyd Warshal solo puede ser aplicado sobre grafos dirigidos");
+        }
+        int mayorID = (--nodosGrafo.end())->first;
+        std::vector <std::vector <double>> resultado(mayorID+1);
+        for (int i = 0; i <= mayorID; ++i) {
+            resultado[i].resize(mayorID+1);
+        }
+        for (int i = 0; i <= mayorID; ++i) {
+            for (int j = 0; j <= mayorID; ++j) {
+                resultado[i][j] = (buscarArista(i,j)) ? obtenerPeso(i,j) : INT_MAX;
+                resultado[i][j] = (i == j) ? 0 : resultado[i][j];
+            }
+        }
+        for (int k = 0; k <= mayorID; ++k) {
+            for (int i = 0; i <= mayorID; ++i) {
+                for (int j = 0; j <= mayorID; ++j) {
+                    if (resultado[i][k] + resultado[k][j] < resultado[i][j]) {
+                        resultado[i][j] = resultado[i][k] + resultado[k][j];
+                    }
+                }
+            }
+        }
+        return resultado;
     }
 
     std::vector <std::pair <int, double>> algoritmoBellmanFord(int idOrigen) {

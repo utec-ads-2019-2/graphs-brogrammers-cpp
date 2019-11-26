@@ -10,6 +10,7 @@
 
 #include "Graph.h"
 #include "Airport.h"
+#include "utils.h"
 
 using json = nlohmann::json;
 
@@ -27,22 +28,6 @@ protected:
             destinos.push_back(std::stoi(destino));
         }
         return destinos;
-    }
-
-    static double gradosARadianes(double grados) {
-        return grados * (M_PI / 180);
-    }
-
-    double obtenerPeso(int origen, int destino) {
-        double radioTierra = 6371;
-        Airport *airportOrigen = aeropuertos.find(origen)->second;
-        Airport *airportDestino = aeropuertos.find(destino)->second;
-        double distanciaLatitud = gradosARadianes(airportDestino->latitud - airportOrigen->latitud);
-        double distanciaLongitud = gradosARadianes(airportDestino->longitud - airportOrigen->longitud);
-        double a = sin(distanciaLatitud / 2) * sin(distanciaLatitud / 2) + cos(gradosARadianes(airportOrigen->latitud)) * cos(gradosARadianes(airportDestino->latitud)) * sin(distanciaLongitud / 2) * sin(distanciaLongitud / 2);
-        double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-        double distancia = radioTierra * c;
-        return distancia;
     }
 
     void readFile(){
@@ -82,9 +67,10 @@ public:
             int idOrigen = element.first;
             std::vector <int> destinos = element.second->destinos;
             for (auto dest : destinos) {
-                grafoAeropuertos.agregarArista(idOrigen, dest, obtenerPeso(idOrigen, dest));
+                grafoAeropuertos.agregarArista(idOrigen, dest, obtenerPeso(idOrigen, dest, aeropuertos));
             }
         }
+        grafoAeropuertos.cargarData(aeropuertos);
         return grafoAeropuertos;
     }
 

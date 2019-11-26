@@ -48,4 +48,20 @@ void printDijkstra(std::map<int, int>& dist){
     }
 }
 
+static double gradosARadianes(double grados) {
+    return grados * (M_PI / 180);
+}
+
+double obtenerPeso(int origen, int destino, std::map <int, Airport*>& datos) {
+    double radioTierra = 6371;
+    Airport *airportOrigen = datos.find(origen)->second;
+    Airport *airportDestino = datos.find(destino)->second;
+    double distanciaLatitud = gradosARadianes(airportDestino->latitud - airportOrigen->latitud);
+    double distanciaLongitud = gradosARadianes(airportDestino->longitud - airportOrigen->longitud);
+    double a = sin(distanciaLatitud / 2) * sin(distanciaLatitud / 2) + cos(gradosARadianes(airportOrigen->latitud)) * cos(gradosARadianes(airportDestino->latitud)) * sin(distanciaLongitud / 2) * sin(distanciaLongitud / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distancia = radioTierra * c;
+    return distancia;
+}
+
 #endif //GRAPHS_BROGRAMMERS_CPP_UTILS_H
