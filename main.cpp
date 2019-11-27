@@ -4,9 +4,11 @@
 
 int main() {
 
-    ParserAirports parserAirports("../demo.json");
+    ParserAirports parserAirports("../airports.json");
     Graph graph = parserAirports.generarGrafo();
-    graph.imprimir();
+    //graph.imprimir();
+    Graph grafoAA = graph.algoritmoAAsterisco(3782, 502);
+    grafoAA.imprimir();
     return 0;
 
 }

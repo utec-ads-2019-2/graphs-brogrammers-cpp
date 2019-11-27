@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Edge.h"
+#include "utils.h"
 
 class Graph {
 private:
@@ -172,7 +173,7 @@ protected:
         }
     }
 
-    double obtenerPeso(int origen, int destino) {
+    double obtenerDistancia(int origen, int destino) {
         auto* actual = nodosGrafo[origen]->head;
         while (actual) {
             if (actual->idDestino == destino) {
@@ -514,12 +515,38 @@ public:
         if (!buscarVertice(origen) || !buscarVertice(destino)) {
             throw std::invalid_argument("Alguno de los vertices no existe");
         }
-        if ((this->esDirigido) ? this->esFuertementeConexo() : this->esConexo()) {
-            throw std::invalid_argument("Los nodos del grafo no se encuentran conectados");
-        }
         Graph resultado(this->esDirigido);
-        nodoListaAdyacencia* actual = nodosGrafo[origen]->head;
-        //while (actual)
+        std::vector <int> pasos;
+        pasos.push_back(origen);
+        int siguienteMejor = origen;
+        int previoNodo = origen;
+        int actual = origen;
+        while (actual != destino) {
+            nodoListaAdyacencia* nodoSiguiente = nodosGrafo[actual]->head;
+            double distanciaMenor = INT_MAX;
+            int siguientePaso = actual;
+            while (nodoSiguiente) {
+                double distanciaSiguiente = obtenerPeso(nodoSiguiente->idDestino, destino, *data);
+                if (distanciaSiguiente < distanciaMenor) {
+                    distanciaMenor = distanciaSiguiente;
+                    siguienteMejor = siguientePaso;
+                    siguientePaso = nodoSiguiente->idDestino;
+                }
+                nodoSiguiente = nodoSiguiente->next;
+            }
+            if (siguientePaso == previoNodo) {
+                pasos.push_back(siguienteMejor);
+                actual = siguienteMejor;
+                previoNodo = actual;
+                continue;
+            }
+            pasos.push_back(siguientePaso);
+            previoNodo = actual;
+            actual = siguientePaso;
+        }
+        for (unsigned int i = 0; i < pasos.size() - 1; ++i) {
+            resultado.agregarArista(pasos[i], pasos[i+1], obtenerPeso(pasos[i], pasos[i + 1], *data));
+        }
         return resultado;
     }
 
@@ -534,7 +561,7 @@ public:
         }
         for (int i = 0; i <= mayorID; ++i) {
             for (int j = 0; j <= mayorID; ++j) {
-                resultado[i][j] = (buscarArista(i,j)) ? obtenerPeso(i,j) : INT_MAX;
+                resultado[i][j] = (buscarArista(i,j)) ? obtenerDistancia(i,j) : INT_MAX;
                 resultado[i][j] = (i == j) ? 0 : resultado[i][j];
             }
         }
@@ -603,7 +630,7 @@ public:
                 pCrawl = pCrawl->next;
             }
         }
-        std::cout << "\nVertices: " << vertices << "\nAristas: " << aristas << std::endl << std::endl;
+        std::cout << "\nVertices: " << vertices << "\nAristas: " << aristas << "\nDirigido: " << esDirigido << std::endl << std::endl;
     }
 
     ~Graph() {
